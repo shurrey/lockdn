@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="520" height="120" viewBox="0 0 520 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- LOCKDN Wordmark V6 - Pink headphones, gills in front (Dark Background) -->
+  <!-- 
+    Changes:
+    - Pink headphones for contrast against dark wild-type
+    - Gills rendered AFTER letters so they appear on top
+    - Organic, aquatic flowing letters
+  -->
+  
+  <defs>
+    <radialGradient id="axoH6" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#6B7A68"/>
+      <stop offset="100%" stop-color="#5A6857"/>
+    </radialGradient>
+    <linearGradient id="axoG6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7A8577"/>
+      <stop offset="100%" stop-color="#5D6B58"/>
+    </linearGradient>
+    <!-- Pink gradient for headphones -->
+    <linearGradient id="pink6" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF8FAB"/>
+      <stop offset="100%" stop-color="#FF6B8A"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- L: Organic, flowing -->
+  <path d="M15 28 
+           Q15 20 23 20 
+           L30 20 
+           Q38 20 38 28 
+           L38 72 
+           L52 72 
+           Q60 72 60 80 
+           L60 92 
+           Q60 100 52 100 
+           L23 100 
+           Q15 100 15 92 
+           Z" 
+        fill="#FFFFFF"/>
+  
+  <!-- C: Organic flowing - RENDERED BEFORE axolotl so gills appear on top -->
+  <path d="M215 35
+           Q215 20 195 20
+           L175 20
+           Q160 20 160 35
+           L160 85
+           Q160 100 175 100
+           L195 100
+           Q215 100 215 85
+           L215 78
+           Q215 72 208 72
+           L190 72
+           Q182 72 182 78
+           L182 80
+           L182 40
+           Q182 48 190 48
+           L208 48
+           Q215 48 215 42
+           Z"
+        fill="#FFFFFF"/>
+  
+  <!-- O (Axolotl): head centered at x=110 -->
+  <!-- Head and face first -->
+  <g transform="translate(110, 60)">
+    <!-- Head -->
+    <ellipse cx="0" cy="0" rx="32" ry="38" fill="url(#axoH6)"/>
+    
+    <!-- Gold speckles -->
+    <circle cx="-15" cy="-15" r="1.8" fill="#C9A227" opacity="0.7"/>
+    <circle cx="15" cy="-12" r="1.5" fill="#C9A227" opacity="0.7"/>
+    <circle cx="0" cy="-25" r="1.5" fill="#C9A227" opacity="0.7"/>
+    <circle cx="-10" cy="8" r="1.5" fill="#C9A227" opacity="0.7"/>
+    <circle cx="12" cy="10" r="1.8" fill="#C9A227" opacity="0.7"/>
+    
+    <!-- Eyes -->
+    <ellipse cx="-12" cy="-4" rx="8" ry="9" fill="#1a1a1a"/>
+    <ellipse cx="12" cy="-4" rx="8" ry="9" fill="#1a1a1a"/>
+    <ellipse cx="-12" cy="-4" rx="8" ry="9" stroke="#C9A227" stroke-width="1.5" fill="none"/>
+    <ellipse cx="12" cy="-4" rx="8" ry="9" stroke="#C9A227" stroke-width="1.5" fill="none"/>
+    <circle cx="-10" cy="-7" r="3" fill="#FFFFFF"/>
+    <circle cx="14" cy="-7" r="3" fill="#FFFFFF"/>
+    
+    <!-- Smile -->
+    <path d="M-10 16 Q0 23 10 16" stroke="#5A4A3A" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    
+    <!-- PINK headphones -->
+    <path d="M-27 -4 Q-27 -32 0 -36 Q27 -32 27 -4" stroke="url(#pink6)" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <rect x="-34" y="-12" width="14" height="18" rx="4" fill="#FF7A9A"/>
+    <rect x="20" y="-12" width="14" height="18" rx="4" fill="#FF7A9A"/>
+    <!-- Headphone inner detail -->
+    <rect x="-32" y="-9" width="10" height="12" rx="3" fill="#FF6B8A"/>
+    <rect x="22" y="-9" width="10" height="12" rx="3" fill="#FF6B8A"/>
+  </g>
+  
+  <!-- Gills - rendered LAST so they appear on top of L and C -->
+  <g transform="translate(110, 60)">
+    <!-- Gills left (overlaps L) -->
+    <path d="M-30 -10 Q-42 -18 -46 -28" stroke="url(#axoG6)" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M-30 0 Q-44 -4 -50 -12" stroke="url(#axoG6)" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M-30 8 Q-42 8 -48 2" stroke="url(#axoG6)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <path d="M-46 -28 Q-50 -32 -48 -36" stroke="#8B7355" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M-50 -12 Q-54 -15 -52 -20" stroke="#8B7355" stroke-width="2" stroke-linecap="round" fill="none"/>
+    
+    <!-- Gills right (overlaps C) -->
+    <path d="M30 -10 Q42 -18 46 -28" stroke="url(#axoG6)" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M30 0 Q44 -4 50 -12" stroke="url(#axoG6)" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M30 8 Q42 8 48 2" stroke="url(#axoG6)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <path d="M46 -28 Q50 -32 48 -36" stroke="#8B7355" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M50 -12 Q54 -15 52 -20" stroke="#8B7355" stroke-width="2" stroke-linecap="round" fill="none"/>
+  </g>
+  
+  <!-- K: Organic flowing style -->
+  <path d="M233 28
+           Q233 20 241 20
+           L248 20
+           Q256 20 256 28
+           L256 50
+           L280 24
+           Q285 20 292 20
+           L305 20
+           Q312 20 308 26
+           L276 58
+           L310 94
+           Q314 100 307 100
+           L292 100
+           Q285 100 280 94
+           L256 66
+           L256 92
+           Q256 100 248 100
+           L241 100
+           Q233 100 233 92
+           Z"
+        fill="#FFFFFF"/>
+  
+  <!-- D: Organic, bubbly -->
+  <path d="M328 28
+           Q328 20 336 20
+           L375 20
+           Q400 20 400 60
+           Q400 100 375 100
+           L336 100
+           Q328 100 328 92
+           Z
+           M350 42
+           L350 78
+           L368 78
+           Q378 78 378 60
+           Q378 42 368 42
+           Z"
+        fill="#FFFFFF" fill-rule="evenodd"/>
+  
+  <!-- N: Organic flowing style - CORRECT DIRECTION -->
+  <path d="M418 92
+           Q418 100 426 100
+           L433 100
+           Q441 100 441 92
+           L441 55
+           L470 95
+           Q474 100 481 100
+           L490 100
+           Q498 100 498 92
+           L498 28
+           Q498 20 490 20
+           L483 20
+           Q475 20 475 28
+           L475 62
+           L448 25
+           Q444 20 437 20
+           L426 20
+           Q418 20 418 28
+           Z"
+        fill="#FFFFFF"/>
+  
+</svg>

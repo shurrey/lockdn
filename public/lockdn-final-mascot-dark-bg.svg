@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- LOCKDN Logo - Wild-Type Axolotl Mascot with PINK Headphones (Dark Background) -->
+  
+  <defs>
+    <radialGradient id="wildBodyGradD" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#5C6B5A"/>
+      <stop offset="100%" stop-color="#4A5648"/>
+    </radialGradient>
+    
+    <radialGradient id="wildHeadGradD" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#6B7A68"/>
+      <stop offset="100%" stop-color="#5A6857"/>
+    </radialGradient>
+    
+    <linearGradient id="wildGillGradD" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7A8577"/>
+      <stop offset="100%" stop-color="#5D6B58"/>
+    </linearGradient>
+    
+    <!-- Pink headphone gradient -->
+    <linearGradient id="pinkHpD" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF8FAB"/>
+      <stop offset="100%" stop-color="#FF6B8A"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Body -->
+  <ellipse cx="200" cy="285" rx="85" ry="55" fill="url(#wildBodyGradD)"/>
+  
+  <!-- Tail hint -->
+  <ellipse cx="295" cy="295" rx="35" ry="18" fill="#4A5648"/>
+  
+  <!-- Head -->
+  <ellipse cx="200" cy="185" rx="100" ry="75" fill="url(#wildHeadGradD)"/>
+  
+  <!-- GOLD SPECKLES -->
+  <g fill="#C9A227" opacity="0.7">
+    <circle cx="140" cy="145" r="3"/>
+    <circle cx="165" cy="130" r="2.5"/>
+    <circle cx="190" cy="140" r="2"/>
+    <circle cx="220" cy="135" r="3"/>
+    <circle cx="250" cy="145" r="2.5"/>
+    <circle cx="270" cy="160" r="2"/>
+    <circle cx="130" cy="170" r="2"/>
+    <circle cx="155" cy="200" r="2.5"/>
+    <circle cx="245" cy="195" r="2"/>
+    <circle cx="275" cy="175" r="2.5"/>
+    <circle cx="180" cy="225" r="2"/>
+    <circle cx="220" cy="230" r="2.5"/>
+    <circle cx="150" cy="270" r="2.5"/>
+    <circle cx="180" cy="285" r="2"/>
+    <circle cx="210" cy="275" r="3"/>
+    <circle cx="240" cy="290" r="2"/>
+    <circle cx="265" cy="270" r="2.5"/>
+  </g>
+  
+  <!-- LEFT GILLS -->
+  <g>
+    <path d="M95 155 Q55 125 35 85" stroke="url(#wildGillGradD)" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <path d="M90 175 Q45 160 15 140" stroke="url(#wildGillGradD)" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <path d="M95 195 Q60 195 35 180" stroke="url(#wildGillGradD)" stroke-width="11" stroke-linecap="round" fill="none"/>
+    
+    <path d="M35 85 Q20 75 25 60" stroke="#8B7355" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M45 95 Q32 88 35 72" stroke="#7A8577" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M55 108 Q42 102 45 88" stroke="#8B7355" stroke-width="4" stroke-linecap="round" fill="none"/>
+    
+    <path d="M15 140 Q0 132 5 115" stroke="#8B7355" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M28 148 Q12 142 18 128" stroke="#7A8577" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M42 155 Q28 150 32 138" stroke="#8B7355" stroke-width="4" stroke-linecap="round" fill="none"/>
+    
+    <path d="M35 180 Q20 178 22 162" stroke="#7A8577" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M48 185 Q35 182 38 170" stroke="#8B7355" stroke-width="4" stroke-linecap="round" fill="none"/>
+  </g>
+  
+  <!-- RIGHT GILLS -->
+  <g transform="translate(400, 0) scale(-1, 1)">
+    <path d="M95 155 Q55 125 35 85" stroke="url(#wildGillGradD)" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <path d="M90 175 Q45 160 15 140" stroke="url(#wildGillGradD)" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <path d="M95 195 Q60 195 35 180" stroke="url(#wildGillGradD)" stroke-width="11" stroke-linecap="round" fill="none"/>
+    
+    <path d="M35 85 Q20 75 25 60" stroke="#8B7355" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M45 95 Q32 88 35 72" stroke="#7A8577" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M55 108 Q42 102 45 88" stroke="#8B7355" stroke-width="4" stroke-linecap="round" fill="none"/>
+    
+    <path d="M15 140 Q0 132 5 115" stroke="#8B7355" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M28 148 Q12 142 18 128" stroke="#7A8577" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M42 155 Q28 150 32 138" stroke="#8B7355" stroke-width="4" stroke-linecap="round" fill="none"/>
+    
+    <path d="M35 180 Q20 178 22 162" stroke="#7A8577" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M48 185 Q35 182 38 170" stroke="#8B7355" stroke-width="4" stroke-linecap="round" fill="none"/>
+  </g>
+  
+  <!-- Gold speckles on gills -->
+  <g fill="#C9A227" opacity="0.6">
+    <circle cx="55" cy="115" r="2"/>
+    <circle cx="35" cy="155" r="1.5"/>
+    <circle cx="60" cy="175" r="2"/>
+    <circle cx="345" cy="115" r="2"/>
+    <circle cx="365" cy="155" r="1.5"/>
+    <circle cx="340" cy="175" r="2"/>
+  </g>
+  
+  <!-- PINK HEADPHONES -->
+  <path d="M75 160 Q75 55 200 45 Q325 55 325 160" stroke="url(#pinkHpD)" stroke-width="16" stroke-linecap="round" fill="none"/>
+  
+  <!-- Left ear cup - PINK -->
+  <rect x="45" y="138" width="55" height="60" rx="14" fill="#FF7A9A"/>
+  <rect x="52" y="145" width="41" height="46" rx="10" fill="#FF6B8A"/>
+  <ellipse cx="72.5" cy="168" rx="14" ry="16" fill="#E85A7A"/>
+  
+  <!-- Right ear cup - PINK -->
+  <rect x="300" y="138" width="55" height="60" rx="14" fill="#FF7A9A"/>
+  <rect x="307" y="145" width="41" height="46" rx="10" fill="#FF6B8A"/>
+  <ellipse cx="327.5" cy="168" rx="14" ry="16" fill="#E85A7A"/>
+  
+  <!-- Face -->
+  <ellipse cx="155" cy="175" rx="24" ry="26" fill="#1a1a1a"/>
+  <ellipse cx="245" cy="175" rx="24" ry="26" fill="#1a1a1a"/>
+  
+  <!-- Golden eye rings -->
+  <ellipse cx="155" cy="175" rx="24" ry="26" stroke="#C9A227" stroke-width="3" fill="none"/>
+  <ellipse cx="245" cy="175" rx="24" ry="26" stroke="#C9A227" stroke-width="3" fill="none"/>
+  
+  <!-- Eye shine -->
+  <circle cx="163" cy="167" r="9" fill="#FFFFFF"/>
+  <circle cx="253" cy="167" r="9" fill="#FFFFFF"/>
+  <circle cx="150" cy="182" r="5" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="240" cy="182" r="5" fill="#FFFFFF" opacity="0.7"/>
+  
+  <!-- Smile -->
+  <path d="M168 220 Q200 238 232 220" stroke="#6B5A4A" stroke-width="5" stroke-linecap="round" fill="none"/>
+  
+  <!-- Cheek areas -->
+  <ellipse cx="120" cy="205" rx="20" ry="13" fill="#7A8577" opacity="0.4"/>
+  <ellipse cx="280" cy="205" rx="20" ry="13" fill="#7A8577" opacity="0.4"/>
+  
+  <!-- Feet -->
+  <ellipse cx="135" cy="305" rx="22" ry="12" fill="#4A5648"/>
+  <ellipse cx="265" cy="305" rx="22" ry="12" fill="#4A5648"/>
+  
+  <circle cx="120" cy="308" r="5" fill="#3D473B"/>
+  <circle cx="130" cy="312" r="5" fill="#3D473B"/>
+  <circle cx="140" cy="312" r="5" fill="#3D473B"/>
+  <circle cx="150" cy="308" r="5" fill="#3D473B"/>
+  
+  <circle cx="250" cy="308" r="5" fill="#3D473B"/>
+  <circle cx="260" cy="312" r="5" fill="#3D473B"/>
+  <circle cx="270" cy="312" r="5" fill="#3D473B"/>
+  <circle cx="280" cy="308" r="5" fill="#3D473B"/>
+  
+  <!-- Gold speckles on feet -->
+  <circle cx="125" cy="305" r="1.5" fill="#C9A227" opacity="0.6"/>
+  <circle cx="145" cy="308" r="1.5" fill="#C9A227" opacity="0.6"/>
+  <circle cx="255" cy="305" r="1.5" fill="#C9A227" opacity="0.6"/>
+  <circle cx="275" cy="308" r="1.5" fill="#C9A227" opacity="0.6"/>
+</svg>
