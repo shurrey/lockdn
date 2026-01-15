@@ -894,15 +894,29 @@ export function NotesPage() {
           {currentPreviewNote && (
             <>
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
-                <div className="flex items-center gap-4">
-                  <DialogTitle className="text-xl">{currentPreviewNote.title}</DialogTitle>
-                  {selectedNotes.length > 1 && (
-                    <Badge variant="secondary">
-                      {previewIndex + 1} of {selectedNotes.length}
-                    </Badge>
-                  )}
+              <div className="p-4 border-b flex-shrink-0 space-y-3">
+                {/* Top row: Title and close button */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <DialogTitle className="text-lg sm:text-xl leading-tight">
+                      {currentPreviewNote.title}
+                    </DialogTitle>
+                    {selectedNotes.length > 1 && (
+                      <Badge variant="secondary" className="mt-1">
+                        {previewIndex + 1} of {selectedNotes.length}
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 flex-shrink-0"
+                    onClick={() => setShowPreviewDialog(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
+                {/* Bottom row: Action buttons */}
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -911,11 +925,13 @@ export function NotesPage() {
                     disabled={processing === currentPreviewNote.id}
                   >
                     {processing === currentPreviewNote.id ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" />
                     ) : (
-                      <Sparkles className="h-4 w-4 mr-2" />
+                      <Sparkles className="h-4 w-4 sm:mr-2" />
                     )}
-                    {currentPreviewNote.extractedText ? 'Reprocess' : 'Process'}
+                    <span className="hidden sm:inline">
+                      {currentPreviewNote.extractedText ? 'Reprocess' : 'Process'}
+                    </span>
                   </Button>
                   <Button
                     variant="outline"
@@ -928,16 +944,8 @@ export function NotesPage() {
                       }
                     }}
                   >
-                    <Archive className="h-4 w-4 mr-2" />
-                    Archive
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setShowPreviewDialog(false)}
-                  >
-                    <X className="h-4 w-4" />
+                    <Archive className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Archive</span>
                   </Button>
                 </div>
               </div>
