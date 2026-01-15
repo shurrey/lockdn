@@ -140,6 +140,11 @@ export const DEFAULT_RTC_CONFIG: RTCConfig = {
   ],
 }
 
-// Signaling server URL (will be configured for production)
+// Signaling server URL
+// PartyKit URLs are: wss://{project}.{username}.partykit.dev
+// Set VITE_SIGNALING_URL env var in Cloudflare Pages settings
 export const SIGNALING_SERVER_URL =
-  import.meta.env.VITE_SIGNALING_URL || 'wss://lockdn-sync.partykit.dev'
+  import.meta.env.VITE_SIGNALING_URL || 'wss://lockdn-sync.shurrey.partykit.dev'
+
+// Log the URL on module load for debugging
+console.log('[Sync] Signaling server URL:', SIGNALING_SERVER_URL)
