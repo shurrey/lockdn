@@ -890,19 +890,19 @@ export function NotesPage() {
 
       {/* Note Preview Dialog - Full Width with Navigation */}
       <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
-        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0" showCloseButton={false}>
+        <DialogContent className="max-w-6xl w-[95vw] max-h-[85vh] sm:max-h-[90vh] flex flex-col p-0 top-[5vh] sm:top-[50%] translate-y-0 sm:-translate-y-1/2" showCloseButton={false}>
           {currentPreviewNote && (
             <>
               {/* Header */}
-              <div className="p-4 border-b flex-shrink-0 space-y-3">
+              <div className="p-3 sm:p-4 border-b flex-shrink-0 space-y-2 sm:space-y-3">
                 {/* Top row: Title and close button */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <DialogTitle className="text-lg sm:text-xl leading-tight">
+                    <DialogTitle className="text-base sm:text-xl leading-snug break-words">
                       {currentPreviewNote.title}
                     </DialogTitle>
                     {selectedNotes.length > 1 && (
-                      <Badge variant="secondary" className="mt-1">
+                      <Badge variant="secondary" className="mt-1 text-xs">
                         {previewIndex + 1} of {selectedNotes.length}
                       </Badge>
                     )}
@@ -910,10 +910,10 @@ export function NotesPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 flex-shrink-0"
+                    className="h-8 w-8 flex-shrink-0 -mt-1"
                     onClick={() => setShowPreviewDialog(false)}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-5 w-5" />
                   </Button>
                 </div>
                 {/* Bottom row: Action buttons */}
