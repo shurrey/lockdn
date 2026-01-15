@@ -9,7 +9,6 @@ import { useSyncStore } from './store'
 import { syncProvider } from './provider'
 import {
   generatePairingCode,
-  generatePairingData,
   encodePairingData,
   decodePairingData,
   parsePairingCode,
@@ -66,8 +65,16 @@ export function usePairingCode() {
   const [isExpired, setIsExpired] = useState(false)
 
   const generate = useCallback(() => {
+    // Generate a single pairing code and use its values for both QR and manual
     const code = generatePairingCode()
-    const data = generatePairingData()
+
+    // Create pairing data using the SAME roomId, secret, expires from the code
+    const data: PairingData = {
+      roomId: code.roomId,
+      secret: code.secret,
+      deviceName: useSyncStore.getState().deviceName,
+      expires: code.expires,
+    }
     const encoded = encodePairingData(data)
 
     setPairingCode(code)

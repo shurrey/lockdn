@@ -64,29 +64,35 @@ class SyncProvider {
 
     return new Promise((resolve, reject) => {
       const url = `${SIGNALING_SERVER_URL}/party/${roomId}`
+      console.log('[Sync] Connecting to:', url)
 
       try {
         this.ws = new WebSocket(url)
 
         this.ws.onopen = () => {
+          console.log('[Sync] WebSocket connected')
           store.setStatus('connected')
           this.startPing()
           resolve()
         }
 
-        this.ws.onclose = () => {
+        this.ws.onclose = (event) => {
+          console.log('[Sync] WebSocket closed:', event.code, event.reason)
           this.handleDisconnect()
         }
 
         this.ws.onerror = (error) => {
+          console.error('[Sync] WebSocket error:', error)
           store.setError('Failed to connect to sync server')
           reject(error)
         }
 
         this.ws.onmessage = (event) => {
+          console.log('[Sync] Message received:', event.data)
           this.handleSignalMessage(event.data)
         }
       } catch (error) {
+        console.error('[Sync] Connection error:', error)
         store.setError('Failed to connect to sync server')
         reject(error)
       }

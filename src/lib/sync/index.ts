@@ -27,7 +27,6 @@ export { syncProvider } from './provider'
 // Pairing utilities
 export {
   generatePairingCode,
-  generatePairingData,
   encodePairingData,
   decodePairingData,
   parsePairingCode,
