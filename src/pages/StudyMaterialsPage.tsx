@@ -38,6 +38,7 @@ import {
   Archive,
   FileText,
   FileDown,
+  X,
 } from 'lucide-react'
 import { Mascot } from '@/components/Mascot'
 import { useCourses, archiveStudyMaterial } from '@/db/hooks'
@@ -249,14 +250,14 @@ export function StudyMaterialsPage() {
     return (
       <Card
         key={material.id}
-        className="cursor-pointer hover:shadow-md transition-shadow"
+        className="cursor-pointer hover:shadow-md transition-shadow overflow-hidden"
         onClick={() => handleViewMaterial(material)}
       >
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div
               className={cn(
-                'p-2 rounded-lg',
+                'p-2 rounded-lg flex-shrink-0',
                 isGuide ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
               )}
             >
@@ -266,7 +267,7 @@ export function StudyMaterialsPage() {
                 <ClipboardList className="h-5 w-5" />
               )}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 overflow-hidden">
               <h3 className="font-medium truncate">{material.title}</h3>
               <div className="flex items-center gap-2 mt-1">
                 {course && (
@@ -393,44 +394,56 @@ export function StudyMaterialsPage() {
         open={showMaterialDialog && selectedMaterial?.type === 'guide'}
         onOpenChange={setShowMaterialDialog}
       >
-        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col">
-          <DialogHeader className="flex-shrink-0">
-            <div className="flex items-center justify-between pr-8">
-              <DialogTitle className="text-xl">{selectedMaterial?.title}</DialogTitle>
-              <div className="flex items-center gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export
-                      <ChevronDown className="h-3 w-3 ml-1" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => selectedMaterial && handleExportPdf(selectedMaterial)}>
-                      <FileDown className="h-4 w-4 mr-2" />
-                      Export as PDF
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => selectedMaterial && handleExportMarkdown(selectedMaterial)}>
-                      <FileText className="h-4 w-4 mr-2" />
-                      Export as Markdown
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                  onClick={() => selectedMaterial && handleArchiveMaterial(selectedMaterial.id)}
-                >
-                  <Archive className="h-4 w-4 mr-2" />
-                  Archive
-                </Button>
-              </div>
+        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0" showCloseButton={false}>
+          <DialogHeader className="flex-shrink-0 p-4 border-b space-y-3">
+            {/* Top row: Title and close button */}
+            <div className="flex items-start justify-between gap-2">
+              <DialogTitle className="text-lg sm:text-xl leading-tight flex-1 min-w-0">
+                {selectedMaterial?.title}
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 flex-shrink-0"
+                onClick={() => setShowMaterialDialog(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            {/* Bottom row: Action buttons */}
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Export</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => selectedMaterial && handleExportPdf(selectedMaterial)}>
+                    <FileDown className="h-4 w-4 mr-2" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => selectedMaterial && handleExportMarkdown(selectedMaterial)}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as Markdown
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                onClick={() => selectedMaterial && handleArchiveMaterial(selectedMaterial.id)}
+              >
+                <Archive className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Archive</span>
+              </Button>
             </div>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto pr-2">
+          <div className="flex-1 overflow-y-auto p-4">
             {selectedMaterial && (
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <ReactMarkdown>{selectedMaterial.content}</ReactMarkdown>
@@ -445,61 +458,74 @@ export function StudyMaterialsPage() {
         open={showMaterialDialog && selectedMaterial?.type === 'practice_exam'}
         onOpenChange={setShowMaterialDialog}
       >
-        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col">
-          <DialogHeader className="flex-shrink-0">
-            <div className="flex items-center justify-between pr-8">
-              <div>
-                <DialogTitle className="text-xl">{selectedMaterial?.title}</DialogTitle>
+        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0" showCloseButton={false}>
+          <DialogHeader className="flex-shrink-0 p-4 border-b space-y-3">
+            {/* Top row: Title and close button */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <DialogTitle className="text-lg sm:text-xl leading-tight">
+                  {selectedMaterial?.title}
+                </DialogTitle>
                 {selectedAttempt && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Viewing Attempt {selectedAttempt.attemptNumber} from {format(new Date(selectedAttempt.completedAt), 'MMM d, yyyy h:mm a')}
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    Viewing Attempt {selectedAttempt.attemptNumber} from {format(new Date(selectedAttempt.completedAt), 'MMM d')}
                   </p>
                 )}
               </div>
-              <div className="flex items-center gap-2">
-                {currentExamAttempts.length > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowHistoryDialog(true)}
-                  >
-                    <History className="h-4 w-4 mr-2" />
-                    History ({currentExamAttempts.length})
-                  </Button>
-                )}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export
-                      <ChevronDown className="h-3 w-3 ml-1" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => selectedMaterial && handleExportPdf(selectedMaterial)}>
-                      <FileDown className="h-4 w-4 mr-2" />
-                      Export as PDF
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => selectedMaterial && handleExportMarkdown(selectedMaterial)}>
-                      <FileText className="h-4 w-4 mr-2" />
-                      Export as Markdown
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 flex-shrink-0"
+                onClick={() => setShowMaterialDialog(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            {/* Bottom row: Action buttons */}
+            <div className="flex flex-wrap items-center gap-2">
+              {currentExamAttempts.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                  onClick={() => selectedMaterial && handleArchiveMaterial(selectedMaterial.id)}
+                  onClick={() => setShowHistoryDialog(true)}
                 >
-                  <Archive className="h-4 w-4 mr-2" />
-                  Archive
+                  <History className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">History ({currentExamAttempts.length})</span>
+                  <span className="sm:hidden">{currentExamAttempts.length}</span>
                 </Button>
-              </div>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Export</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => selectedMaterial && handleExportPdf(selectedMaterial)}>
+                    <FileDown className="h-4 w-4 mr-2" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => selectedMaterial && handleExportMarkdown(selectedMaterial)}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as Markdown
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                onClick={() => selectedMaterial && handleArchiveMaterial(selectedMaterial.id)}
+              >
+                <Archive className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Archive</span>
+              </Button>
             </div>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto pr-2">
+          <div className="flex-1 overflow-y-auto p-4">
             {selectedMaterial?.questions && (
               <div className="space-y-4">
                 {/* Score Card */}
