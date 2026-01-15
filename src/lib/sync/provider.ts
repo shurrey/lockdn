@@ -223,7 +223,12 @@ class SyncProvider {
    * Initiate a peer connection
    */
   private async initiatePeerConnection(peerId: string): Promise<void> {
-    if (this.peers.has(peerId)) return
+    if (this.peers.has(peerId)) {
+      console.log('[Sync] Already have connection to peer:', peerId)
+      return
+    }
+
+    console.log('[Sync] Initiating peer connection to:', peerId)
 
     const pc = new RTCPeerConnection(DEFAULT_RTC_CONFIG)
     const peerConn: PeerConnection = { pc, dc: null, peerId }
@@ -231,6 +236,7 @@ class SyncProvider {
     // Handle ICE candidates
     pc.onicecandidate = (event) => {
       if (event.candidate) {
+        console.log('[Sync] Sending ICE candidate to:', peerId)
         this.sendSignal({
           type: 'signal',
           to: peerId,
@@ -241,6 +247,7 @@ class SyncProvider {
 
     // Handle connection state changes
     pc.onconnectionstatechange = () => {
+      console.log('[Sync] Connection state changed:', pc.connectionState, 'for peer:', peerId)
       if (pc.connectionState === 'connected') {
         this.handlePeerConnected(peerId)
       } else if (
@@ -253,6 +260,7 @@ class SyncProvider {
 
     // Handle incoming data channels
     pc.ondatachannel = (event) => {
+      console.log('[Sync] Received data channel from peer:', peerId)
       peerConn.dc = event.channel
       this.setupDataChannel(peerConn)
     }
@@ -261,19 +269,24 @@ class SyncProvider {
 
     // Create data channel and offer (initiator)
     const deviceId = useSyncStore.getState().deviceId
+    console.log('[Sync] Device ID comparison:', { myId: deviceId, peerId, shouldInitiate: deviceId && deviceId < peerId })
     if (deviceId && deviceId < peerId) {
       // Lower ID initiates
+      console.log('[Sync] I am initiator, creating data channel and offer')
       peerConn.dc = pc.createDataChannel(DATA_CHANNEL_LABEL)
       this.setupDataChannel(peerConn)
 
       const offer = await pc.createOffer()
       await pc.setLocalDescription(offer)
 
+      console.log('[Sync] Sending offer to peer:', peerId)
       this.sendSignal({
         type: 'signal',
         to: peerId,
         payload: { type: 'offer', sdp: offer },
       })
+    } else {
+      console.log('[Sync] I am responder, waiting for offer from peer')
     }
   }
 
@@ -363,17 +376,26 @@ class SyncProvider {
     const { dc, peerId } = peerConn
     if (!dc) return
 
+    console.log('[Sync] Setting up data channel for peer:', peerId)
+
     dc.onopen = () => {
+      console.log('[Sync] Data channel OPEN with peer:', peerId)
       // Request initial sync
       this.requestSync(peerId)
     }
 
     dc.onmessage = (event) => {
+      console.log('[Sync] Data channel message from', peerId, ':', event.data.substring(0, 100))
       this.handleSyncMessage(peerId, event.data)
     }
 
     dc.onclose = () => {
+      console.log('[Sync] Data channel CLOSED with peer:', peerId)
       this.handlePeerLeave(peerId)
+    }
+
+    dc.onerror = (error) => {
+      console.error('[Sync] Data channel ERROR with peer:', peerId, error)
     }
   }
 
@@ -427,6 +449,7 @@ class SyncProvider {
    * Request full sync from a peer
    */
   private requestSync(peerId: string): void {
+    console.log('[Sync] Requesting full sync from peer:', peerId)
     const message: SyncMessage = {
       type: 'sync_request',
       id: crypto.randomUUID(),
@@ -488,6 +511,7 @@ class SyncProvider {
    * Send full database sync to a peer
    */
   private async sendFullSync(peerId: string): Promise<void> {
+    console.log('[Sync] Sending full sync to peer:', peerId)
     const store = useSyncStore.getState()
     store.setStatus('syncing')
 
@@ -498,6 +522,7 @@ class SyncProvider {
       try {
         const records = await (db[table] as Dexie.Table).toArray()
         data[table] = records
+        console.log(`[Sync] Collected ${records.length} records from ${table}`)
       } catch {
         // Table might not exist, skip
       }
@@ -510,6 +535,7 @@ class SyncProvider {
       data,
     }
 
+    console.log('[Sync] Sending sync_response with data for tables:', Object.keys(data))
     this.sendSyncMessage(peerId, message)
     store.setStatus('connected')
   }
@@ -520,12 +546,14 @@ class SyncProvider {
   private async applyFullSync(
     data: Record<string, unknown[]>
   ): Promise<void> {
+    console.log('[Sync] Applying full sync, tables:', Object.keys(data))
     const store = useSyncStore.getState()
     store.setStatus('syncing')
 
     for (const [table, records] of Object.entries(data)) {
       if (!SYNC_TABLES[table as SyncableTable]) continue
 
+      console.log(`[Sync] Applying ${records.length} records to ${table}`)
       try {
         const dbTable = db[table as keyof typeof db] as Dexie.Table
 
@@ -535,6 +563,7 @@ class SyncProvider {
           if (!existing) {
             // New record, add it
             await dbTable.add(record)
+            console.log(`[Sync] Added new record to ${table}:`, (record as { id: string }).id)
           } else {
             // Compare timestamps and keep newer
             const existingTime =
@@ -544,14 +573,16 @@ class SyncProvider {
 
             if (incomingTime > existingTime) {
               await dbTable.put(record)
+              console.log(`[Sync] Updated record in ${table}:`, (record as { id: string }).id)
             }
           }
         }
-      } catch {
-        // Skip failed tables
+      } catch (err) {
+        console.error(`[Sync] Failed to apply records to ${table}:`, err)
       }
     }
 
+    console.log('[Sync] Full sync applied successfully')
     store.setLastSyncedAt(new Date())
     store.setStatus('connected')
   }
