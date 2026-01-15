@@ -58,7 +58,7 @@ export function ProductivityHeatmap({ heatmapData }: ProductivityHeatmapProps) {
   }
 
   return (
-    <Card className="col-span-2">
+    <Card className="col-span-1 md:col-span-2">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
