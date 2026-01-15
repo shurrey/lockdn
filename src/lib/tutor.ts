@@ -171,10 +171,10 @@ function buildSystemPrompt(context: TutorContext, detectedMode: TutoringMode): s
       }
 
       // Practice exams with attempt history (with IDs for linking)
-      if (exams.length > 0 && context.examAttempts) {
+      if (exams.length > 0) {
         materialsInfo += '\n\nPractice exams:\n'
         for (const exam of exams.slice(0, 3)) {
-          const attempts = context.examAttempts.filter(a => a.examId === exam.id)
+          const attempts = context.examAttempts?.filter(a => a.examId === exam.id) || []
           // Include ID for linking: [[exam:ID:Title]]
           materialsInfo += `- [[exam:${exam.id}:${exam.title}]]`
           if (attempts.length > 0) {
@@ -184,23 +184,39 @@ function buildSystemPrompt(context: TutorContext, detectedMode: TutoringMode): s
             const bestAttempt = attempts.sort((a, b) => b.percentage - a.percentage)[0]
             materialsInfo += ` - ${attempts.length} attempt(s), latest: ${latestAttempt.percentage}%, best: ${bestAttempt.percentage}%`
 
-            // Find questions they struggled with (answered incorrectly on latest attempt)
-            if (exam.questions && latestAttempt.percentage < 100) {
-              const wrongQuestions = exam.questions.filter(q => {
-                const answer = latestAttempt.answers[q.id]
-                const correct = Array.isArray(q.correctAnswer)
-                  ? JSON.stringify(answer) === JSON.stringify(q.correctAnswer)
-                  : answer === q.correctAnswer
-                return !correct
-              })
-              if (wrongQuestions.length > 0 && wrongQuestions.length <= 5) {
-                materialsInfo += `\n  Needs review: ${wrongQuestions.map(q => q.question.substring(0, 50)).join('; ')}`
-              } else if (wrongQuestions.length > 5) {
-                materialsInfo += `\n  ${wrongQuestions.length} questions need review`
+            // Show questions with attempt results
+            if (exam.questions && exam.questions.length > 0) {
+              materialsInfo += '\n  Questions:'
+              for (const q of exam.questions.slice(0, 10)) {
+                const userAnswer = latestAttempt.answers[q.id]
+                const isCorrect = Array.isArray(q.correctAnswer)
+                  ? JSON.stringify(userAnswer) === JSON.stringify(q.correctAnswer)
+                  : userAnswer === q.correctAnswer
+                const status = isCorrect ? '✓' : '✗'
+                materialsInfo += `\n    ${status} ${q.question.substring(0, 80)}${q.question.length > 80 ? '...' : ''}`
+                if (!isCorrect) {
+                  materialsInfo += ` (Correct: ${Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer})`
+                }
+                if (q.feedback) {
+                  materialsInfo += `\n      Feedback: ${q.feedback.substring(0, 100)}${q.feedback.length > 100 ? '...' : ''}`
+                }
+              }
+              if (exam.questions.length > 10) {
+                materialsInfo += `\n    ... and ${exam.questions.length - 10} more questions`
               }
             }
           } else {
             materialsInfo += ' - not attempted yet'
+            // Still show questions for unatttempted exams so tutor can discuss them
+            if (exam.questions && exam.questions.length > 0) {
+              materialsInfo += `\n  ${exam.questions.length} questions available:`
+              for (const q of exam.questions.slice(0, 5)) {
+                materialsInfo += `\n    - ${q.question.substring(0, 80)}${q.question.length > 80 ? '...' : ''}`
+              }
+              if (exam.questions.length > 5) {
+                materialsInfo += `\n    ... and ${exam.questions.length - 5} more questions`
+              }
+            }
           }
           materialsInfo += '\n'
         }

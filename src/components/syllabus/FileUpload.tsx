@@ -88,10 +88,13 @@ export function FileUpload({
 
       // Check if any files need HEIC conversion
       const hasHeicFiles = filesToProcess.some(isHeicFile)
+      let conversionToastId: string | number | undefined
 
       if (hasHeicFiles) {
         setIsConverting(true)
-        toast.info('Converting HEIC images...')
+        conversionToastId = toast.loading('Converting HEIC images...', {
+          description: 'This may take a few seconds',
+        })
       }
 
       try {
@@ -125,10 +128,18 @@ export function FileUpload({
           setFiles(updatedFiles)
           onFilesSelected(updatedFiles)
 
-          if (hasHeicFiles) {
+          if (hasHeicFiles && conversionToastId) {
+            toast.dismiss(conversionToastId)
             toast.success('HEIC images converted successfully')
           }
+        } else if (hasHeicFiles && conversionToastId) {
+          toast.dismiss(conversionToastId)
         }
+      } catch (error) {
+        if (conversionToastId) {
+          toast.dismiss(conversionToastId)
+        }
+        throw error
       } finally {
         setIsConverting(false)
       }

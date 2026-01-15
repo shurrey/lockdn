@@ -119,8 +119,11 @@ export function NotesPage() {
 
     // Check if any need HEIC conversion
     const hasHeic = imageFiles.some(isHeicFile)
+    let conversionToastId: string | number | undefined
     if (hasHeic) {
-      toast.info('Converting HEIC images...')
+      conversionToastId = toast.loading('Converting HEIC images...', {
+        description: 'This may take a few seconds',
+      })
     }
 
     // Convert HEIC files to JPEG
@@ -138,6 +141,9 @@ export function NotesPage() {
       }
     }
 
+    if (conversionToastId) {
+      toast.dismiss(conversionToastId)
+    }
     if (hasHeic && convertedFiles.length > 0) {
       toast.success('HEIC images converted')
     }
