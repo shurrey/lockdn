@@ -9,6 +9,7 @@ import {
   CompletionRateCard,
   ExamPerformanceChart,
   ProductivityHeatmap,
+  CoursePerformanceCard,
 } from '@/components/analytics'
 import {
   useAnalytics,
@@ -88,6 +89,11 @@ export function AnalyticsPage() {
         {/* Row 3: Productivity Heatmap (2 cols) + Completion Rate (1 col) */}
         <ProductivityHeatmap heatmapData={heatmapData} />
         <CompletionRateCard assignments={assignments} />
+
+        {/* Row 4: Course Grades (spans 2 cols on lg) */}
+        <div className="lg:col-span-2">
+          <CoursePerformanceCard analytics={analytics} courses={courses} />
+        </div>
       </div>
     </div>
   )

@@ -22,6 +22,7 @@ import {
   useTutoringConversations,
   useStudyMaterials,
   useExamAttempts,
+  useAnalytics,
   useTutorBehavioralProfile,
   createTutoringConversation,
   updateTutoringConversation,
@@ -39,6 +40,7 @@ export function TutorPage() {
   const notes = useNotes()
   const studyMaterials = useStudyMaterials()
   const examAttempts = useExamAttempts()
+  const analytics = useAnalytics()
   const apiKeys = useApiKeys()
   const conversations = useTutoringConversations()
   const behavioralProfile = useTutorBehavioralProfile()
@@ -73,10 +75,11 @@ export function TutorPage() {
       notes: notes || [],
       studyMaterials: studyMaterials || [],
       examAttempts: examAttempts || [],
+      analytics: analytics || undefined,
       mode: (activeConversation?.detectedMode || 'learning') as TutoringMode,
       behavioralProfile: behavioralProfile ? toPatternProfile(behavioralProfile) : undefined,
     }),
-    [courses, upcomingAssignments, notes, studyMaterials, examAttempts, activeConversation?.detectedMode, behavioralProfile]
+    [courses, upcomingAssignments, notes, studyMaterials, examAttempts, analytics, activeConversation?.detectedMode, behavioralProfile]
   )
 
   // Trigger behavioral analysis periodically (every 5 minutes if there are conversations)

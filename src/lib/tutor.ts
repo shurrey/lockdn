@@ -1,5 +1,5 @@
 import { getConfiguredProvider, type AIMessage, type AIMessageContent } from '@/lib/ai'
-import type { Course, Assignment, TutoringMessage, TutoringMessageImage, TutoringMode, Note, StudyMaterial, ExamAttempt } from '@/types'
+import type { Course, Assignment, TutoringMessage, TutoringMessageImage, TutoringMode, Note, StudyMaterial, ExamAttempt, Analytics } from '@/types'
 import { differenceInDays } from 'date-fns'
 import {
   generateTutorInstructions,
@@ -12,6 +12,7 @@ export interface TutorContext {
   notes: Note[]
   studyMaterials?: StudyMaterial[]
   examAttempts?: ExamAttempt[]
+  analytics?: Analytics
   currentCourse?: Course
   mode: TutoringMode
   behavioralProfile?: TutorBehavioralProfile
@@ -255,6 +256,39 @@ function buildSystemPrompt(context: TutorContext, detectedMode: TutoringMode): s
     }
   }
 
+  // Add course performance context (grades and trends)
+  let performanceContext = ''
+  if (context.analytics?.coursePerformance) {
+    const performances = Object.values(context.analytics.coursePerformance)
+      .filter(p => p.assignmentCount > 0)
+
+    if (performances.length > 0) {
+      performanceContext = '\n\nCourse Performance (grades and trends):\n'
+      for (const p of performances) {
+        const course = context.courses.find(c => c.id === p.courseId)
+        if (course) {
+          const trendIndicator = p.trend === 'improving' ? '↑' : p.trend === 'declining' ? '↓' : p.trend === 'stable' ? '→' : ''
+          performanceContext += `- ${course.code}: ${p.averageGrade.toFixed(0)}% avg`
+          if (trendIndicator) {
+            performanceContext += ` ${trendIndicator}`
+          }
+          performanceContext += ` (${p.completedCount} completed`
+          if (p.lateCount > 0) {
+            performanceContext += `, ${p.lateCount} late`
+          }
+          performanceContext += ')\n'
+
+          // Add warning for struggling courses
+          if (p.averageGrade < 70) {
+            performanceContext += `  ⚠️ Student may be struggling in this course\n`
+          } else if (p.trend === 'declining') {
+            performanceContext += `  ⚠️ Grades declining - may need extra support\n`
+          }
+        }
+      }
+    }
+  }
+
   // Add behavioral profile instructions (personalized teaching approach)
   let behavioralInstructions = ''
   if (context.behavioralProfile) {
@@ -292,6 +326,16 @@ PERSONA:
 - Proactively check in on their progress when appropriate
 - Use syllabus information to give accurate, course-specific guidance
 - Reference practice exam performance to identify areas needing review
+- Monitor course performance trends and proactively offer support
+
+GRADE-AWARE SUPPORT:
+When a student is struggling (declining grades or average below 70%):
+- Proactively acknowledge the challenge without being discouraging
+- Suggest reviewing related study materials and notes
+- Recommend generating practice exams for weak topics
+- Offer to help review concepts they may have missed
+- Focus on building confidence through small wins
+- If they ask "How am I doing in [course]?", give honest but supportive feedback
 
 RESOURCE LINKING (IMPORTANT):
 When you mention a student's note, study guide, or practice exam, you MUST use the exact link format provided below. This creates a clickable link for the student to view the resource.
@@ -312,6 +356,7 @@ ${deadlineContext}
 ${currentCourseContext}
 ${notesContext}
 ${studyMaterialsContext}
+${performanceContext}
 
 Today's date: ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
 

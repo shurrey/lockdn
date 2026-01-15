@@ -23,6 +23,9 @@ export type AttentionType =
   | 'setup_api_key'
   | 'setup_syllabus'
   | 'setup_courses'
+  | 'declining_grades'
+  | 'low_course_grade'
+  | 'late_submission_pattern'
 
 export interface AttentionItem {
   id: string
@@ -221,7 +224,80 @@ export function getAttentionItems(
     }
   }
 
-  // 6. MEDIUM: Study sessions scheduled for today
+  // 6. MEDIUM: Course performance issues (declining grades, low averages, late patterns)
+  if (analytics?.coursePerformance) {
+    for (const [courseId, performance] of Object.entries(analytics.coursePerformance)) {
+      const course = courseMap.get(courseId)
+      if (!course) continue
+
+      // Low course grade (average below 70%)
+      if (performance.averageGrade < 70 && performance.assignmentCount >= 2) {
+        items.push({
+          id: `lowgrade-${courseId}`,
+          type: 'low_course_grade',
+          priority: 0.75,
+          title: `${course.code} needs attention`,
+          description: `Your average is ${Math.round(performance.averageGrade)}% - let's work on improving it`,
+          actionLabel: 'Get Help',
+          actionLink: '/tutor',
+          course,
+          icon: 'alert',
+          color: 'orange',
+          metadata: {
+            average: performance.averageGrade,
+            courseName: course.name,
+          },
+        })
+      }
+
+      // Declining grades
+      if (performance.trend === 'declining' && performance.assignmentCount >= 3) {
+        // Skip if already added as low grade
+        if (!items.some(i => i.id === `lowgrade-${courseId}`)) {
+          items.push({
+            id: `declining-${courseId}`,
+            type: 'declining_grades',
+            priority: 0.7,
+            title: `${course.code} grades declining`,
+            description: `Recent grades are trending down - time to regroup`,
+            actionLabel: 'Review Materials',
+            actionLink: '/materials',
+            course,
+            icon: 'alert',
+            color: 'yellow',
+            metadata: {
+              average: performance.averageGrade,
+              trend: performance.trend,
+              courseName: course.name,
+            },
+          })
+        }
+      }
+
+      // Late submission pattern (more than 30% late)
+      if (performance.completedCount >= 3 && performance.lateCount / performance.completedCount > 0.3) {
+        items.push({
+          id: `latepattern-${courseId}`,
+          type: 'late_submission_pattern',
+          priority: 0.5,
+          title: `Submissions often late in ${course.code}`,
+          description: `${performance.lateCount} of ${performance.completedCount} submissions were late`,
+          actionLabel: 'Plan Ahead',
+          actionLink: '/study',
+          course,
+          icon: 'clock',
+          color: 'yellow',
+          metadata: {
+            lateCount: performance.lateCount,
+            completedCount: performance.completedCount,
+            onTimeRate: performance.onTimeRate,
+          },
+        })
+      }
+    }
+  }
+
+  // 7. MEDIUM-LOW: Study sessions scheduled for today
   const todayStart = startOfDay(now)
   const todayEnd = new Date(todayStart)
   todayEnd.setDate(todayEnd.getDate() + 1)
@@ -253,7 +329,7 @@ export function getAttentionItems(
     })
   }
 
-  // 7. MEDIUM: Exam prep - practice exams for upcoming tests
+  // 8. MEDIUM: Exam prep - practice exams for upcoming tests
   const upcomingExams = assignments.filter(a => {
     if (a.status === 'completed') return false
     if (a.type !== 'exam' && a.type !== 'quiz') return false
@@ -294,7 +370,7 @@ export function getAttentionItems(
     }
   }
 
-  // 8. LOW: Neglected courses (no activity in 7+ days)
+  // 9. LOW: Neglected courses (no activity in 7+ days)
   const lastWeek = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]
 
   for (const course of courses) {
@@ -328,7 +404,7 @@ export function getAttentionItems(
     }
   }
 
-  // 9. LOW: Study materials that haven't been reviewed
+  // 10. LOW: Study materials that haven't been reviewed
   const unrevisitedMaterials = studyMaterials.filter(m => {
     // Study guides created more than 3 days ago that might need review
     const daysSinceCreated = differenceInDays(now, new Date(m.createdAt))
@@ -353,7 +429,7 @@ export function getAttentionItems(
     })
   }
 
-  // 10. SETUP: Missing API key (needed for AI features)
+  // 11. SETUP: Missing API key (needed for AI features)
   if (input.hasApiKey === false) {
     items.push({
       id: 'setup-api-key',
@@ -368,7 +444,7 @@ export function getAttentionItems(
     })
   }
 
-  // 11. SETUP: No courses added yet
+  // 12. SETUP: No courses added yet
   if (courses.length === 0) {
     items.push({
       id: 'setup-courses',
@@ -383,7 +459,7 @@ export function getAttentionItems(
     })
   }
 
-  // 12. SETUP: Courses exist but missing syllabi
+  // 13. SETUP: Courses exist but missing syllabi
   if (courses.length > 0) {
     const coursesWithoutSyllabus = courses.filter(c => !c.syllabusData)
 
