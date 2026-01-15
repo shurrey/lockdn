@@ -1,7 +1,14 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Settings, Plus, MessageSquare, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
+import { Settings, Plus, MessageSquare, Trash2, ChevronLeft, ChevronRight, Menu } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Mascot } from '@/components/Mascot'
 import { ChatInterface } from '@/components/tutor/ChatInterface'
@@ -40,6 +47,7 @@ export function TutorPage() {
   const [activeConversation, setActiveConversation] = useState<TutoringConversation | null>(null)
   const [selectedResource, setSelectedResource] = useState<ResourceLink | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
 
   // Track if we've analyzed recently to avoid excessive analysis
   const lastAnalysisRef = useRef<number>(0)
@@ -93,6 +101,7 @@ export function TutorPage() {
 
   const handleSelectConversation = useCallback((id: string) => {
     setActiveConversationId(id)
+    setMobileSheetOpen(false) // Close mobile sheet when selecting conversation
   }, [])
 
   const handleMessagesChange = useCallback(
@@ -180,13 +189,75 @@ export function TutorPage() {
     )
   }
 
+  // Shared conversation list component for both desktop sidebar and mobile sheet
+  const ConversationList = ({ onSelect }: { onSelect?: (id: string) => void }) => (
+    <div className="space-y-1">
+      {conversations && conversations.length > 0 ? (
+        conversations.map((conv) => (
+          <div
+            key={conv.id}
+            className={cn(
+              'flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-accent group',
+              activeConversationId === conv.id && 'bg-accent'
+            )}
+            onClick={() => onSelect ? onSelect(conv.id) : handleSelectConversation(conv.id)}
+          >
+            <MessageSquare className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm truncate">{conv.title}</p>
+              <p className="text-xs text-muted-foreground">
+                {format(new Date(conv.updatedAt), 'MMM d')}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100"
+              onClick={(e) => handleDeleteConversation(conv.id, e)}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        ))
+      ) : (
+        <p className="text-sm text-muted-foreground text-center py-4">
+          No conversations yet
+        </p>
+      )}
+    </div>
+  )
+
   return (
     <div className="p-4 md:p-6 h-full flex flex-col">
-      <div className="mb-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">AI Tutor</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Get help with your coursework from your AI study buddy.
-        </p>
+      <div className="mb-4 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">AI Tutor</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Get help with your coursework from your AI study buddy.
+          </p>
+        </div>
+
+        {/* Mobile conversation menu */}
+        <div className="flex items-center gap-2 md:hidden">
+          <Button variant="outline" size="icon" onClick={handleNewConversation}>
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Menu className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80">
+              <SheetHeader>
+                <SheetTitle>Conversations</SheetTitle>
+              </SheetHeader>
+              <div className="mt-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
+                <ConversationList onSelect={handleSelectConversation} />
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
       <div className="flex-1 flex gap-4 min-h-0">
@@ -227,39 +298,8 @@ export function TutorPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto p-2 space-y-1">
-                {conversations && conversations.length > 0 ? (
-                  conversations.map((conv) => (
-                    <div
-                      key={conv.id}
-                      className={cn(
-                        'flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-accent group',
-                        activeConversationId === conv.id && 'bg-accent'
-                      )}
-                      onClick={() => handleSelectConversation(conv.id)}
-                    >
-                      <MessageSquare className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm truncate">{conv.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(conv.updatedAt), 'MMM d')}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                        onClick={(e) => handleDeleteConversation(conv.id, e)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No conversations yet
-                  </p>
-                )}
+              <CardContent className="flex-1 overflow-y-auto p-2">
+                <ConversationList />
               </CardContent>
             </>
           )}
