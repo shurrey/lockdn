@@ -1,23 +1,32 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, Page } from '@playwright/test'
+
+// Helper function to complete onboarding quickly
+async function completeOnboarding(page: Page) {
+  // Clear IndexedDB
+  await page.goto('/')
+  await page.evaluate(() => {
+    return new Promise<void>((resolve, reject) => {
+      const req = indexedDB.deleteDatabase('lockdn-db')
+      req.onsuccess = () => resolve()
+      req.onerror = () => reject(req.error)
+    })
+  })
+  await page.reload()
+
+  // Complete onboarding quickly
+  await page.getByRole('button', { name: /get started/i }).click()
+  // Wait for API Key step to load, then click Skip Setup in header
+  await expect(page.getByRole('heading', { name: /configure ai provider/i })).toBeVisible()
+  await page.getByRole('button', { name: /skip setup/i }).click()
+  // Wait for completion step, then go to dashboard
+  await expect(page.getByRole('heading', { name: /all set/i })).toBeVisible()
+  await page.getByRole('button', { name: /go to dashboard/i }).click()
+  await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 })
+}
 
 test.describe('Notes Management', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear IndexedDB and complete onboarding
-    await page.goto('/')
-    await page.evaluate(() => {
-      return new Promise<void>((resolve, reject) => {
-        const req = indexedDB.deleteDatabase('lockdn-db')
-        req.onsuccess = () => resolve()
-        req.onerror = () => reject(req.error)
-      })
-    })
-    await page.reload()
-
-    // Complete onboarding
-    await page.getByRole('button', { name: /get started/i }).click()
-    await page.getByRole('button', { name: /skip setup/i }).click()
-    await page.getByRole('button', { name: /go to dashboard|finish|complete/i }).click()
-    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 })
+    await completeOnboarding(page)
   })
 
   test('should navigate to notes page', async ({ page }) => {
@@ -46,22 +55,7 @@ test.describe('Notes Management', () => {
 
 test.describe('Study Materials', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear IndexedDB and complete onboarding
-    await page.goto('/')
-    await page.evaluate(() => {
-      return new Promise<void>((resolve, reject) => {
-        const req = indexedDB.deleteDatabase('lockdn-db')
-        req.onsuccess = () => resolve()
-        req.onerror = () => reject(req.error)
-      })
-    })
-    await page.reload()
-
-    // Complete onboarding
-    await page.getByRole('button', { name: /get started/i }).click()
-    await page.getByRole('button', { name: /skip setup/i }).click()
-    await page.getByRole('button', { name: /go to dashboard|finish|complete/i }).click()
-    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 })
+    await completeOnboarding(page)
   })
 
   test('should navigate to study materials page', async ({ page }) => {

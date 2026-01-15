@@ -29,19 +29,20 @@ test.describe('Onboarding Flow', () => {
     await expect(page.getByAltText(/lockdn/i).first()).toBeVisible()
     await page.getByRole('button', { name: /get started/i }).click()
 
-    // Step 2: API Key Setup
-    await expect(page.getByText(/ai setup/i)).toBeVisible()
-    // Skip API key for now
-    await page.getByRole('button', { name: /skip|next|continue/i }).click()
+    // Step 2: API Key Setup - look for heading
+    await expect(page.getByRole('heading', { name: /configure ai provider/i })).toBeVisible()
+    // Skip API key - use the "Skip for Now" button at bottom
+    await page.getByRole('button', { name: /skip for now/i }).click()
 
-    // Step 3: Schedule Upload
-    await expect(page.getByText(/schedule/i)).toBeVisible()
-    // Skip schedule upload
-    await page.getByRole('button', { name: /skip/i }).click()
+    // Step 3: Schedule Upload - look for heading
+    await expect(page.getByRole('heading', { name: /import your course schedule/i })).toBeVisible()
+    // Skip schedule upload - click on the "Skip for Now" button at the bottom (not the heading in option card)
+    // The button at bottom is the actual navigation button
+    await page.getByRole('button', { name: /skip for now/i }).click()
 
-    // Step 4: Preferences (syllabus step is skipped if no schedule)
-    await expect(page.getByText(/preferences/i)).toBeVisible()
-    await page.getByRole('button', { name: /next|continue/i }).click()
+    // Step 4: Preferences
+    await expect(page.getByRole('heading', { name: /set your preferences/i })).toBeVisible()
+    await page.getByRole('button', { name: /continue/i }).click()
 
     // Step 5: Complete - look for the heading specifically
     await expect(page.getByRole('heading', { name: /all set/i })).toBeVisible()
@@ -67,8 +68,8 @@ test.describe('Onboarding Flow', () => {
     await page.getByRole('button', { name: /get started/i }).click()
     await page.getByRole('button', { name: /skip setup/i }).click()
 
-    // Complete onboarding
-    await page.getByRole('button', { name: /go to dashboard|finish|complete/i }).click()
+    // Complete onboarding - button says "Go to Dashboard"
+    await page.getByRole('button', { name: /go to dashboard/i }).click()
 
     // Should see main dashboard
     await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 })
@@ -80,7 +81,7 @@ test.describe('Onboarding Flow', () => {
     // Complete onboarding
     await page.getByRole('button', { name: /get started/i }).click()
     await page.getByRole('button', { name: /skip setup/i }).click()
-    await page.getByRole('button', { name: /go to dashboard|finish|complete/i }).click()
+    await page.getByRole('button', { name: /go to dashboard/i }).click()
 
     // Wait for dashboard
     await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 })
