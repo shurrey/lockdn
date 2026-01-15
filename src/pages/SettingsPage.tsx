@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { ApiKeyForm } from '@/components/settings/ApiKeyForm'
 import { StudyPreferencesForm } from '@/components/settings/StudyPreferencesForm'
 import { DataManagement } from '@/components/settings/DataManagement'
+import { DeviceSyncSettings } from '@/components/settings/DeviceSyncSettings'
 import { usePreferences, updatePreferences } from '@/db/hooks'
 import { Sun, Moon, Monitor } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -28,6 +29,7 @@ export function SettingsPage() {
         <TabsList>
           <TabsTrigger value="api-keys">API Keys</TabsTrigger>
           <TabsTrigger value="preferences">Preferences</TabsTrigger>
+          <TabsTrigger value="sync">Device Sync</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="data">Data</TabsTrigger>
         </TabsList>
@@ -48,6 +50,10 @@ export function SettingsPage() {
 
         <TabsContent value="preferences">
           <StudyPreferencesForm />
+        </TabsContent>
+
+        <TabsContent value="sync">
+          <DeviceSyncSettings />
         </TabsContent>
 
         <TabsContent value="appearance">

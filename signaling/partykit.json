@@ -1,0 +1,5 @@
+{
+  "name": "lockdn-sync",
+  "main": "src/index.ts",
+  "compatibilityDate": "2024-01-01"
+}

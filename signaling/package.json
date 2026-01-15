@@ -1,0 +1,17 @@
+{
+  "name": "lockdn-signaling",
+  "version": "0.1.0",
+  "description": "PartyKit signaling server for Lockdn P2P sync",
+  "private": true,
+  "scripts": {
+    "dev": "partykit dev",
+    "deploy": "partykit deploy",
+    "tail": "partykit tail"
+  },
+  "dependencies": {
+    "partykit": "^0.0.111"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

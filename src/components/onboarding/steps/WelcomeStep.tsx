@@ -18,6 +18,8 @@ import {
 } from 'lucide-react'
 import { importFromFile } from '@/lib/dataImport'
 import { Logo } from '@/components/Logo'
+import { DevicePairingDialog } from '@/components/sync/DevicePairingDialog'
+import { useSyncStatus } from '@/lib/sync'
 
 interface WelcomeStepProps {
   onNext: () => void
@@ -27,7 +29,9 @@ interface WelcomeStepProps {
 export function WelcomeStep({ onNext, onImportComplete }: WelcomeStepProps) {
   const [importStatus, setImportStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [importMessage, setImportMessage] = useState('')
+  const [showSyncDialog, setShowSyncDialog] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { isConnected, peerCount } = useSyncStatus()
 
   const handleImportClick = () => {
     fileInputRef.current?.click()
@@ -197,7 +201,10 @@ export function WelcomeStep({ onNext, onImportComplete }: WelcomeStepProps) {
             )}
             Import Backup
           </Button>
-          <Button variant="outline" disabled title="Coming soon">
+          <Button
+            variant="outline"
+            onClick={() => setShowSyncDialog(true)}
+          >
             <Smartphone className="h-4 w-4 mr-2" />
             Sync from Device
           </Button>
@@ -207,7 +214,19 @@ export function WelcomeStep({ onNext, onImportComplete }: WelcomeStepProps) {
             {importMessage}
           </p>
         )}
+        {isConnected && peerCount > 0 && (
+          <p className="text-center text-sm mt-2 text-green-600">
+            Connected! Your data will sync automatically.
+          </p>
+        )}
       </div>
+
+      {/* Device Pairing Dialog */}
+      <DevicePairingDialog
+        open={showSyncDialog}
+        onOpenChange={setShowSyncDialog}
+        mode="scan"
+      />
     </div>
   )
 }
