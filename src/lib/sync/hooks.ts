@@ -120,17 +120,21 @@ export function useJoinSync() {
   const [error, setError] = useState<string | null>(null)
 
   const joinWithCode = useCallback(async (code: string) => {
+    console.log('[Sync] Joining with code:', code)
     setIsJoining(true)
     setError(null)
 
     try {
       const { roomId, isValid } = parsePairingCode(code)
+      console.log('[Sync] Parsed code:', { roomId, isValid })
       if (!isValid) {
         throw new Error('Invalid pairing code')
       }
 
       await syncProvider.connect(roomId)
+      console.log('[Sync] Connected successfully')
     } catch (err) {
+      console.error('[Sync] Join with code failed:', err)
       setError(err instanceof Error ? err.message : 'Failed to join')
     } finally {
       setIsJoining(false)
@@ -138,11 +142,13 @@ export function useJoinSync() {
   }, [])
 
   const joinWithQR = useCallback(async (qrData: string) => {
+    console.log('[Sync] Joining with QR data:', qrData.substring(0, 50) + '...')
     setIsJoining(true)
     setError(null)
 
     try {
       const data = decodePairingData(qrData)
+      console.log('[Sync] Decoded QR data:', data)
       if (!data) {
         throw new Error('Invalid QR code')
       }
@@ -151,8 +157,11 @@ export function useJoinSync() {
         throw new Error('Pairing code has expired')
       }
 
+      console.log('[Sync] Connecting to room:', data.roomId)
       await syncProvider.connect(data.roomId, data.secret)
+      console.log('[Sync] Connected successfully')
     } catch (err) {
+      console.error('[Sync] Join with QR failed:', err)
       setError(err instanceof Error ? err.message : 'Failed to join')
     } finally {
       setIsJoining(false)

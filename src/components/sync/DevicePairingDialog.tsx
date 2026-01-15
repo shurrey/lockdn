@@ -27,7 +27,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { usePairingCode, useJoinSync, useSyncStatus } from '@/lib/sync'
+import { usePairingCode, useJoinSync, useSyncStatus, syncProvider } from '@/lib/sync'
 
 interface DevicePairingDialogProps {
   open: boolean
@@ -52,10 +52,17 @@ export function DevicePairingDialog({
     useJoinSync()
   const { isConnected, peerCount } = useSyncStatus()
 
-  // Generate code when dialog opens in "show" mode
+  // Generate code and connect to room when dialog opens in "show" mode
   useEffect(() => {
     if (open && mode === 'show' && !qrData) {
-      generate()
+      const { data } = generate()
+      // Connect to the room so we're waiting for peers
+      if (data) {
+        console.log('[Sync] Host connecting to room:', data.roomId)
+        syncProvider.connect(data.roomId, data.secret).catch((err) => {
+          console.error('[Sync] Host failed to connect:', err)
+        })
+      }
     }
   }, [open, mode, qrData, generate])
 
@@ -65,6 +72,8 @@ export function DevicePairingDialog({
       setManualCode('')
       setShowScanner(mode === 'scan')
       clearError()
+      // Note: We don't disconnect here because we want to stay connected
+      // if pairing was successful
     }
   }, [open, mode, clearError])
 
