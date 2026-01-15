@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { router } from './router'
 import { initializeDefaults } from './db'
 import { ThemeProvider } from './components/ThemeProvider'
+import { setupSyncHooks } from './lib/sync'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -18,6 +19,9 @@ const queryClient = new QueryClient({
 
 // Initialize database defaults
 initializeDefaults().catch(console.error)
+
+// Set up real-time sync hooks
+setupSyncHooks()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -13,6 +13,7 @@ import type {
 } from './types'
 import { DEFAULT_RTC_CONFIG, SIGNALING_SERVER_URL } from './types'
 import { useSyncStore } from './store'
+import { setApplyingRemoteChange } from './dexie-hooks'
 
 // WebRTC data channel label
 const DATA_CHANNEL_LABEL = 'lockdn-sync'
@@ -627,33 +628,40 @@ class SyncProvider {
     const store = useSyncStore.getState()
     store.setStatus('syncing')
 
-    for (const [table, records] of Object.entries(data)) {
-      if (!SYNC_TABLES[table as SyncableTable]) continue
+    // Set flag to prevent re-broadcasting received changes
+    setApplyingRemoteChange(true)
 
-      try {
-        const dbTable = db[table as keyof typeof db] as Dexie.Table
+    try {
+      for (const [table, records] of Object.entries(data)) {
+        if (!SYNC_TABLES[table as SyncableTable]) continue
 
-        for (const record of records) {
-          const existing = await dbTable.get((record as { id: string }).id)
+        try {
+          const dbTable = db[table as keyof typeof db] as Dexie.Table
 
-          if (!existing) {
-            await dbTable.add(record)
-          } else {
-            const existingTime = this.getTimestamp(
-              (existing as { updatedAt?: Date | string }).updatedAt
-            )
-            const incomingTime = this.getTimestamp(
-              (record as { updatedAt?: Date | string }).updatedAt
-            )
+          for (const record of records) {
+            const existing = await dbTable.get((record as { id: string }).id)
 
-            if (incomingTime > existingTime) {
-              await dbTable.put(record)
+            if (!existing) {
+              await dbTable.add(record)
+            } else {
+              const existingTime = this.getTimestamp(
+                (existing as { updatedAt?: Date | string }).updatedAt
+              )
+              const incomingTime = this.getTimestamp(
+                (record as { updatedAt?: Date | string }).updatedAt
+              )
+
+              if (incomingTime > existingTime) {
+                await dbTable.put(record)
+              }
             }
           }
+        } catch (err) {
+          console.error(`[Sync] Failed to apply records to ${table}:`, err)
         }
-      } catch (err) {
-        console.error(`[Sync] Failed to apply records to ${table}:`, err)
       }
+    } finally {
+      setApplyingRemoteChange(false)
     }
 
     store.setLastSyncedAt(new Date())
@@ -669,6 +677,7 @@ class SyncProvider {
     data: unknown,
     timestamp: number
   ): Promise<void> {
+    setApplyingRemoteChange(true)
     try {
       const dbTable = db[table as keyof typeof db] as Dexie.Table
       const existing = await dbTable.get(recordId)
@@ -688,6 +697,8 @@ class SyncProvider {
       useSyncStore.getState().setLastSyncedAt(new Date())
     } catch {
       // Failed to apply change
+    } finally {
+      setApplyingRemoteChange(false)
     }
   }
 
@@ -699,6 +710,7 @@ class SyncProvider {
     recordId: string,
     timestamp: number
   ): Promise<void> {
+    setApplyingRemoteChange(true)
     try {
       const dbTable = db[table as keyof typeof db] as Dexie.Table
       const existing = await dbTable.get(recordId)
@@ -719,6 +731,8 @@ class SyncProvider {
       useSyncStore.getState().setLastSyncedAt(new Date())
     } catch {
       // Failed to apply delete
+    } finally {
+      setApplyingRemoteChange(false)
     }
   }
 

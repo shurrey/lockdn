@@ -44,3 +44,6 @@ export {
   useSyncConnection,
   useAutoSync,
 } from './hooks'
+
+// Dexie hooks for real-time sync
+export { setupSyncHooks } from './dexie-hooks'
