@@ -99,6 +99,7 @@ export interface SyncState {
   status: SyncStatus
   deviceId: string | null
   deviceName: string
+  roomId: string | null
   connectedPeers: DeviceInfo[]
   lastSyncedAt: Date | null
   pendingChanges: number
@@ -108,6 +109,7 @@ export interface SyncState {
   setStatus: (status: SyncStatus) => void
   setDeviceId: (id: string) => void
   setDeviceName: (name: string) => void
+  setRoomId: (id: string | null) => void
   addPeer: (peer: DeviceInfo) => void
   removePeer: (peerId: string) => void
   updatePeer: (peerId: string, updates: Partial<DeviceInfo>) => void

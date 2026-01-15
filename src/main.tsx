@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { router } from './router'
 import { initializeDefaults } from './db'
 import { ThemeProvider } from './components/ThemeProvider'
-import { setupSyncHooks } from './lib/sync'
+import { setupSyncHooks, syncProvider } from './lib/sync'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -22,6 +22,11 @@ initializeDefaults().catch(console.error)
 
 // Set up real-time sync hooks
 setupSyncHooks()
+
+// Auto-reconnect to saved room after store hydrates
+setTimeout(() => {
+  syncProvider.autoReconnect().catch(console.error)
+}, 100)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -79,6 +79,7 @@ class SyncProvider {
 
     const store = useSyncStore.getState()
     store.setStatus('connecting')
+    store.setRoomId(roomId) // Persist roomId for auto-reconnect
 
     return new Promise((resolve, reject) => {
       const url = `${SIGNALING_SERVER_URL}/party/${roomId}`
@@ -787,6 +788,31 @@ class SyncProvider {
    */
   getPeerCount(): number {
     return this.peers.size
+  }
+
+  /**
+   * Auto-reconnect to saved room if available
+   * Call this on app startup
+   */
+  async autoReconnect(): Promise<void> {
+    const store = useSyncStore.getState()
+    const savedRoomId = store.roomId
+
+    if (savedRoomId && store.status === 'disconnected') {
+      try {
+        await this.connect(savedRoomId)
+      } catch (err) {
+        console.error('[Sync] Auto-reconnect failed:', err)
+      }
+    }
+  }
+
+  /**
+   * Clear saved room (unpair all devices)
+   */
+  clearRoom(): void {
+    useSyncStore.getState().setRoomId(null)
+    this.disconnect()
   }
 }
 

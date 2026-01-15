@@ -30,6 +30,7 @@ export const useSyncStore = create<SyncState>()(
       status: 'disconnected',
       deviceId: null,
       deviceName: getDefaultDeviceName(),
+      roomId: null,
       connectedPeers: [],
       lastSyncedAt: null,
       pendingChanges: 0,
@@ -40,6 +41,8 @@ export const useSyncStore = create<SyncState>()(
       setDeviceId: (id: string) => set({ deviceId: id }),
 
       setDeviceName: (name: string) => set({ deviceName: name }),
+
+      setRoomId: (id: string | null) => set({ roomId: id }),
 
       addPeer: (peer: DeviceInfo) =>
         set((state) => {
@@ -83,6 +86,7 @@ export const useSyncStore = create<SyncState>()(
       partialize: (state) => ({
         deviceId: state.deviceId,
         deviceName: state.deviceName,
+        roomId: state.roomId,
         lastSyncedAt: state.lastSyncedAt,
       }),
       onRehydrateStorage: () => (state) => {
