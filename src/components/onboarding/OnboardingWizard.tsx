@@ -170,7 +170,7 @@ export function OnboardingWizard() {
       {/* Step content */}
       <div className="flex-1 container max-w-6xl mx-auto px-4 py-8">
         {currentStep === 'welcome' && (
-          <WelcomeStep onNext={handleNext} />
+          <WelcomeStep onNext={handleNext} onImportComplete={handleComplete} />
         )}
 
         {currentStep === 'api-key' && (

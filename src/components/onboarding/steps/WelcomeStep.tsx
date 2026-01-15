@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -9,24 +10,69 @@ import {
   Brain,
   Calendar,
   FileText,
+  Upload,
+  Smartphone,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
 } from 'lucide-react'
+import { importFromFile } from '@/lib/dataImport'
+import { Logo } from '@/components/Logo'
 
 interface WelcomeStepProps {
   onNext: () => void
+  onImportComplete?: () => void
 }
 
-export function WelcomeStep({ onNext }: WelcomeStepProps) {
+export function WelcomeStep({ onNext, onImportComplete }: WelcomeStepProps) {
+  const [importStatus, setImportStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [importMessage, setImportMessage] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setImportStatus('loading')
+    setImportMessage('')
+
+    try {
+      const result = await importFromFile(file)
+      setImportStatus('success')
+      setImportMessage(`Imported ${result.coursesCount} courses, ${result.assignmentsCount} assignments, ${result.notesCount} notes`)
+
+      // Notify parent to complete onboarding after brief delay
+      setTimeout(() => {
+        onImportComplete?.()
+      }, 1500)
+    } catch (error) {
+      setImportStatus('error')
+      setImportMessage(error instanceof Error ? error.message : 'Import failed')
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Hero */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight">
-          Welcome to Student Course Tools
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Your personal AI-powered study assistant that keeps your data private
-          and helps you stay on top of your coursework.
-        </p>
+      <div className="text-center space-y-6">
+        <div className="flex justify-center">
+          <Logo size="xl" />
+        </div>
+        <div className="space-y-3">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Your private, AI-powered study companion that helps you stay on top of coursework
+            while keeping your data exactly where it belongs: on your device.
+          </p>
+        </div>
       </div>
 
       {/* Features grid */}
@@ -87,11 +133,11 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
             <div className="space-y-3">
               <h3 className="font-semibold text-lg">Your Data Stays With You</h3>
               <p className="text-muted-foreground">
-                This app is <strong>local-first</strong>. All your courses, notes,
-                and study materials are stored directly on your device using IndexedDB.
+                Lockdn is <strong>local-first</strong>. All your courses, notes,
+                and study materials are stored directly on your device.
                 Nothing is sent to our servers.
               </p>
-              <div className="grid sm:grid-cols-3 gap-4 pt-2">
+              <div className="grid sm:grid-cols-4 gap-4 pt-2">
                 <div className="flex items-center gap-2">
                   <Database className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Local storage only</span>
@@ -104,18 +150,63 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
                   <Zap className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Works offline</span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">No account needed</span>
+                </div>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* CTA */}
+      {/* Primary CTA */}
       <div className="flex justify-center pt-4">
         <Button size="lg" onClick={onNext} className="px-8">
           Get Started
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
+      </div>
+
+      {/* Alternative paths */}
+      <div className="border-t pt-8">
+        <p className="text-center text-sm text-muted-foreground mb-4">
+          Already have data from another device?
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={handleImport}
+          />
+          <Button
+            variant="outline"
+            onClick={handleImportClick}
+            disabled={importStatus === 'loading' || importStatus === 'success'}
+          >
+            {importStatus === 'loading' ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : importStatus === 'success' ? (
+              <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+            ) : importStatus === 'error' ? (
+              <AlertCircle className="h-4 w-4 mr-2 text-destructive" />
+            ) : (
+              <Upload className="h-4 w-4 mr-2" />
+            )}
+            Import Backup
+          </Button>
+          <Button variant="outline" disabled title="Coming soon">
+            <Smartphone className="h-4 w-4 mr-2" />
+            Sync from Device
+          </Button>
+        </div>
+        {importMessage && (
+          <p className={`text-center text-sm mt-2 ${importStatus === 'error' ? 'text-destructive' : 'text-muted-foreground'}`}>
+            {importMessage}
+          </p>
+        )}
       </div>
     </div>
   )
