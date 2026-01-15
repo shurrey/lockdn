@@ -54,8 +54,8 @@ test.describe('Courses Management', () => {
     // Save the course
     await page.getByRole('button', { name: 'Create Course' }).click()
 
-    // Course should appear in the list
-    await expect(page.getByText('CS101')).toBeVisible()
+    // Course should appear in the list - use exact match to avoid toast conflict
+    await expect(page.getByText('CS101', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Introduction to Computer Science')).toBeVisible()
   })
 
@@ -67,15 +67,20 @@ test.describe('Courses Management', () => {
     await page.getByLabel(/course name/i).fill('Intro to CS')
     await page.getByRole('button', { name: 'Create Course' }).click()
 
-    // Click on the course to view details
-    await page.getByText('CS101').click()
+    // Wait for toast to disappear to avoid click interception
+    await page.waitForTimeout(1000)
 
-    // Add an assignment
-    await page.getByRole('button', { name: /add assignment/i }).click()
+    // Click on the course card to expand it
+    await page.locator('[data-slot="card"]').filter({ hasText: 'CS101' }).click()
+
+    // Add an assignment - button says "Add" with plus icon in the Assignments section
+    await page.getByRole('button', { name: /^add$/i }).click()
     await page.getByLabel(/title/i).fill('Homework 1')
-    await page.getByRole('button', { name: /save|add|create/i }).click()
+    // Also need to set a due date as it's required
+    await page.getByLabel(/due date/i).fill('2025-12-31')
+    await page.getByRole('button', { name: /add assignment/i }).click()
 
-    // Assignment should appear
+    // Assignment should appear in the course card
     await expect(page.getByText('Homework 1')).toBeVisible()
   })
 
@@ -87,17 +92,17 @@ test.describe('Courses Management', () => {
     await page.getByLabel(/course name/i).fill('Intro to CS')
     await page.getByRole('button', { name: 'Create Course' }).click()
 
-    // Click on the course
-    await page.getByText('CS101').click()
+    // Wait for toast to disappear
+    await page.waitForTimeout(1500)
 
-    // Archive the course
-    await page.getByRole('button', { name: /archive/i }).click()
+    // Click on the course card to expand it
+    await page.locator('[data-slot="card"]').filter({ hasText: 'CS101' }).click()
 
-    // Confirm if there's a dialog
-    const confirmButton = page.getByRole('button', { name: /confirm|yes|archive/i })
-    if (await confirmButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await confirmButton.click()
-    }
+    // Archive the course - find archive button with title attribute
+    await page.getByRole('button', { name: /archive course/i }).click()
+
+    // Confirm archive in dialog
+    await page.getByRole('alertdialog').getByRole('button', { name: /archive/i }).click()
 
     // Course should be gone
     await expect(page.getByText(/no courses yet/i)).toBeVisible({ timeout: 5000 })

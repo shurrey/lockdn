@@ -39,8 +39,8 @@ test.describe('Notes Management', () => {
     const sidebar = page.locator('aside')
     await sidebar.getByRole('link', { name: 'Notes' }).click()
 
-    // Should see upload area text
-    await expect(page.getByText(/drag.*drop|upload.*notes|click.*upload/i)).toBeVisible()
+    // Should see upload button
+    await expect(page.getByRole('button', { name: /upload notes/i }).first()).toBeVisible()
   })
 })
 

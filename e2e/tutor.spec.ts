@@ -32,8 +32,8 @@ test.describe('AI Tutor', () => {
 
     // Should see mascot and configure API key message
     await expect(page.getByAltText(/lockdn mascot/i)).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Configure API Key' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Configure API Key' })).toBeVisible()
+    await expect(page.locator('[data-slot="card-title"]').filter({ hasText: 'Configure API Key' })).toBeVisible()
+    await expect(page.getByRole('link', { name: /configure api key/i })).toBeVisible()
   })
 
   test('should link to settings from API key message', async ({ page }) => {

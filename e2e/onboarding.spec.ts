@@ -17,16 +17,16 @@ test.describe('Onboarding Flow', () => {
   test('should show onboarding wizard for new users', async ({ page }) => {
     await page.goto('/')
 
-    // Should see the welcome step
-    await expect(page.getByRole('heading', { name: /welcome/i })).toBeVisible()
-    await expect(page.getByText(/your study data stays/i)).toBeVisible()
+    // Should see the welcome step with Lockdn branding and privacy message
+    await expect(page.getByAltText(/lockdn/i).first()).toBeVisible()
+    await expect(page.getByText(/your data stays with you/i)).toBeVisible()
   })
 
   test('should navigate through onboarding steps', async ({ page }) => {
     await page.goto('/')
 
-    // Step 1: Welcome
-    await expect(page.getByRole('heading', { name: /welcome/i })).toBeVisible()
+    // Step 1: Welcome - look for Lockdn logo and Get Started button
+    await expect(page.getByAltText(/lockdn/i).first()).toBeVisible()
     await page.getByRole('button', { name: /get started/i }).click()
 
     // Step 2: API Key Setup
@@ -43,8 +43,8 @@ test.describe('Onboarding Flow', () => {
     await expect(page.getByText(/preferences/i)).toBeVisible()
     await page.getByRole('button', { name: /next|continue/i }).click()
 
-    // Step 5: Complete
-    await expect(page.getByText(/ready|complete|all set/i)).toBeVisible()
+    // Step 5: Complete - look for the heading specifically
+    await expect(page.getByRole('heading', { name: /all set/i })).toBeVisible()
   })
 
   test('should allow skipping to end', async ({ page }) => {
@@ -56,8 +56,8 @@ test.describe('Onboarding Flow', () => {
     // Click skip setup
     await page.getByRole('button', { name: /skip setup/i }).click()
 
-    // Should be at completion step
-    await expect(page.getByText(/ready|complete|all set/i)).toBeVisible()
+    // Should be at completion step - look for the heading specifically
+    await expect(page.getByRole('heading', { name: /all set/i })).toBeVisible()
   })
 
   test('should complete onboarding and show main app', async ({ page }) => {

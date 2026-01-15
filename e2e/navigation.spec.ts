@@ -25,7 +25,7 @@ test.describe('App Navigation', () => {
     const sidebar = page.locator('aside')
     await expect(sidebar.getByRole('link', { name: 'Dashboard' })).toBeVisible()
     await expect(sidebar.getByRole('link', { name: 'Calendar' })).toBeVisible()
-    await expect(sidebar.getByRole('link', { name: 'Study' })).toBeVisible()
+    await expect(sidebar.getByRole('link', { name: 'Study', exact: true })).toBeVisible()
     await expect(sidebar.getByRole('link', { name: 'Courses' })).toBeVisible()
     await expect(sidebar.getByRole('link', { name: 'Tutor' })).toBeVisible()
     await expect(sidebar.getByRole('link', { name: 'Notes' })).toBeVisible()
@@ -48,8 +48,8 @@ test.describe('App Navigation', () => {
     await expect(page.getByRole('heading', { name: 'Calendar', exact: true })).toBeVisible()
 
     // Study
-    await sidebar.getByRole('link', { name: 'Study' }).click()
-    await expect(page.getByRole('heading', { name: 'Study', exact: true })).toBeVisible()
+    await sidebar.getByRole('link', { name: 'Study', exact: true }).click()
+    await expect(page.getByRole('heading', { name: /study planner/i })).toBeVisible()
 
     // Courses
     await sidebar.getByRole('link', { name: 'Courses' }).click()
@@ -97,11 +97,11 @@ test.describe('Dashboard', () => {
   })
 
   test('should display dashboard widgets', async ({ page }) => {
-    // Check for key widgets - use heading role for card titles
-    await expect(page.getByRole('heading', { name: 'Upcoming Deadlines' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Quick Actions' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Your Courses' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Study Streak' })).toBeVisible()
+    // Check for key widgets - new users see Getting Started instead of full dashboard
+    // Look for Quick Actions card title
+    await expect(page.locator('[data-slot="card-title"]').filter({ hasText: 'Quick Actions' })).toBeVisible()
+    // Getting Started section should be visible for new users
+    await expect(page.getByText(/getting started/i)).toBeVisible()
   })
 
   test('should show getting started for new users without courses', async ({ page }) => {
