@@ -394,20 +394,20 @@ export function StudyMaterialsPage() {
         open={showMaterialDialog && selectedMaterial?.type === 'guide'}
         onOpenChange={setShowMaterialDialog}
       >
-        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0" showCloseButton={false}>
-          <DialogHeader className="flex-shrink-0 p-4 border-b space-y-3">
+        <DialogContent className="max-w-6xl w-[95vw] max-h-[85vh] sm:max-h-[90vh] flex flex-col p-0 top-[5vh] sm:top-[50%] translate-y-0 sm:-translate-y-1/2" showCloseButton={false}>
+          <DialogHeader className="flex-shrink-0 p-3 sm:p-4 border-b space-y-2 sm:space-y-3">
             {/* Top row: Title and close button */}
             <div className="flex items-start justify-between gap-2">
-              <DialogTitle className="text-lg sm:text-xl leading-tight flex-1 min-w-0">
+              <DialogTitle className="text-base sm:text-xl leading-snug break-words flex-1 min-w-0">
                 {selectedMaterial?.title}
               </DialogTitle>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 flex-shrink-0"
+                className="h-8 w-8 flex-shrink-0 -mt-1"
                 onClick={() => setShowMaterialDialog(false)}
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
             {/* Bottom row: Action buttons */}
@@ -458,27 +458,27 @@ export function StudyMaterialsPage() {
         open={showMaterialDialog && selectedMaterial?.type === 'practice_exam'}
         onOpenChange={setShowMaterialDialog}
       >
-        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0" showCloseButton={false}>
-          <DialogHeader className="flex-shrink-0 p-4 border-b space-y-3">
+        <DialogContent className="max-w-6xl w-[95vw] max-h-[85vh] sm:max-h-[90vh] flex flex-col p-0 top-[5vh] sm:top-[50%] translate-y-0 sm:-translate-y-1/2" showCloseButton={false}>
+          <DialogHeader className="flex-shrink-0 p-3 sm:p-4 border-b space-y-2 sm:space-y-3">
             {/* Top row: Title and close button */}
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <DialogTitle className="text-lg sm:text-xl leading-tight">
+                <DialogTitle className="text-base sm:text-xl leading-snug break-words">
                   {selectedMaterial?.title}
                 </DialogTitle>
                 {selectedAttempt && (
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                    Viewing Attempt {selectedAttempt.attemptNumber} from {format(new Date(selectedAttempt.completedAt), 'MMM d')}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Attempt {selectedAttempt.attemptNumber} · {format(new Date(selectedAttempt.completedAt), 'MMM d')}
                   </p>
                 )}
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 flex-shrink-0"
+                className="h-8 w-8 flex-shrink-0 -mt-1"
                 onClick={() => setShowMaterialDialog(false)}
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
             {/* Bottom row: Action buttons */}
