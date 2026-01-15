@@ -105,6 +105,7 @@ export interface SyncState {
   lastSyncedAt: Date | null
   pendingChanges: number
   error: string | null
+  syncVersion: number // Incremented after each sync to trigger UI refresh
 
   // Actions
   setStatus: (status: SyncStatus) => void
@@ -115,6 +116,7 @@ export interface SyncState {
   removePeer: (peerId: string) => void
   updatePeer: (peerId: string, updates: Partial<DeviceInfo>) => void
   setLastSyncedAt: (date: Date) => void
+  incrementSyncVersion: () => void
   setPendingChanges: (count: number) => void
   setError: (error: string | null) => void
   reset: () => void

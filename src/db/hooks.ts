@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, generateId, now } from './index'
+import { useSyncStore } from '@/lib/sync/store'
 import type {
   Course,
   Assignment,
@@ -15,18 +16,27 @@ import type {
   DailySummary,
 } from '@/types'
 
+// Hook to get sync version for forcing re-queries after sync
+function useSyncVersion() {
+  return useSyncStore((state) => state.syncVersion)
+}
+
 // ============ Course Hooks ============
 
 export function useCourses() {
-  return useLiveQuery(() =>
-    db.courses
-      .filter((c) => c.archivedAt === undefined)
-      .sortBy('name')
+  const syncVersion = useSyncVersion()
+  return useLiveQuery(
+    () =>
+      db.courses
+        .filter((c) => c.archivedAt === undefined)
+        .sortBy('name'),
+    [syncVersion]
   )
 }
 
 export function useCourse(id: string | undefined) {
-  return useLiveQuery(() => (id ? db.courses.get(id) : undefined), [id])
+  const syncVersion = useSyncVersion()
+  return useLiveQuery(() => (id ? db.courses.get(id) : undefined), [id, syncVersion])
 }
 
 export async function createCourse(
@@ -62,6 +72,7 @@ export async function deleteCourse(id: string): Promise<void> {
 // ============ Assignment Hooks ============
 
 export function useAssignments(courseId?: string) {
+  const syncVersion = useSyncVersion()
   return useLiveQuery(() => {
     if (courseId) {
       return db.assignments
@@ -73,10 +84,11 @@ export function useAssignments(courseId?: string) {
     return db.assignments
       .filter((a) => a.archivedAt === undefined)
       .sortBy('dueDate')
-  }, [courseId])
+  }, [courseId, syncVersion])
 }
 
 export function useUpcomingAssignments(limit = 5) {
+  const syncVersion = useSyncVersion()
   return useLiveQuery(async () => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -86,7 +98,7 @@ export function useUpcomingAssignments(limit = 5) {
       .and((a) => a.status !== 'completed' && a.archivedAt === undefined)
       .sortBy('dueDate')
       .then((assignments) => assignments.slice(0, limit))
-  }, [limit])
+  }, [limit, syncVersion])
 }
 
 export async function createAssignment(
@@ -116,6 +128,7 @@ export async function deleteAssignment(id: string): Promise<void> {
 // ============ Note Hooks ============
 
 export function useNotes(courseId?: string) {
+  const syncVersion = useSyncVersion()
   return useLiveQuery(() => {
     if (courseId) {
       return db.notes
@@ -128,7 +141,7 @@ export function useNotes(courseId?: string) {
       .filter((n) => n.archivedAt === undefined)
       .reverse()
       .sortBy('createdAt')
-  }, [courseId])
+  }, [courseId, syncVersion])
 }
 
 export async function createNote(
@@ -165,6 +178,7 @@ export async function deleteNote(id: string): Promise<void> {
 // ============ Study Material Hooks ============
 
 export function useStudyMaterials(courseId?: string) {
+  const syncVersion = useSyncVersion()
   return useLiveQuery(() => {
     if (courseId) {
       return db.studyMaterials
@@ -176,12 +190,13 @@ export function useStudyMaterials(courseId?: string) {
     return db.studyMaterials
       .filter((m) => m.archivedAt === undefined)
       .sortBy('createdAt')
-  }, [courseId])
+  }, [courseId, syncVersion])
 }
 
 // ============ Study Session Hooks ============
 
 export function useStudySessions(courseId?: string) {
+  const syncVersion = useSyncVersion()
   return useLiveQuery(() => {
     if (courseId) {
       return db.studySessions
@@ -194,10 +209,11 @@ export function useStudySessions(courseId?: string) {
       .filter((s) => s.archivedAt === undefined)
       .reverse()
       .sortBy('plannedStart')
-  }, [courseId])
+  }, [courseId, syncVersion])
 }
 
 export function useTodayStudySessions() {
+  const syncVersion = useSyncVersion()
   return useLiveQuery(async () => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -209,7 +225,7 @@ export function useTodayStudySessions() {
       .between(today, tomorrow)
       .and((s) => s.archivedAt === undefined)
       .toArray()
-  })
+  }, [syncVersion])
 }
 
 export async function createStudySession(

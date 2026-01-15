@@ -35,6 +35,7 @@ export const useSyncStore = create<SyncState>()(
       lastSyncedAt: null,
       pendingChanges: 0,
       error: null,
+      syncVersion: 0,
 
       setStatus: (status: SyncStatus) => set({ status, error: null }),
 
@@ -66,6 +67,8 @@ export const useSyncStore = create<SyncState>()(
         })),
 
       setLastSyncedAt: (date: Date) => set({ lastSyncedAt: date }),
+
+      incrementSyncVersion: () => set((state) => ({ syncVersion: state.syncVersion + 1 })),
 
       setPendingChanges: (count: number) => set({ pendingChanges: count }),
 

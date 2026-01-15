@@ -693,6 +693,7 @@ class SyncProvider {
     }
 
     store.setLastSyncedAt(new Date())
+    store.incrementSyncVersion() // Trigger UI refresh
     store.setStatus('connected')
   }
 
@@ -703,7 +704,7 @@ class SyncProvider {
     table: SyncableTable,
     recordId: string,
     data: unknown,
-    timestamp: number
+    _timestamp: number
   ): Promise<void> {
     setApplyingRemoteChange(true)
     try {
@@ -713,11 +714,16 @@ class SyncProvider {
       if (!existing) {
         await dbTable.add(data)
       } else {
+        // Compare record updatedAt times, not message timestamp
         const existingTime = this.getTimestamp(
           (existing as { updatedAt?: Date | string }).updatedAt
         )
+        const incomingTime = this.getTimestamp(
+          (data as { updatedAt?: Date | string }).updatedAt
+        )
 
-        if (timestamp > existingTime) {
+        // Only update if incoming record is actually newer
+        if (incomingTime > existingTime) {
           await dbTable.put(data)
         }
       }
@@ -732,11 +738,13 @@ class SyncProvider {
 
   /**
    * Apply a delete (archive) from a peer
+   * Note: We use the message timestamp here since the delete doesn't include
+   * the full record. This is acceptable since deletes are explicit user actions.
    */
   private async applyDelete(
     table: SyncableTable,
     recordId: string,
-    timestamp: number
+    deleteTimestamp: number
   ): Promise<void> {
     setApplyingRemoteChange(true)
     try {
@@ -748,10 +756,11 @@ class SyncProvider {
           (existing as { updatedAt?: Date | string }).updatedAt
         )
 
-        if (timestamp > existingTime) {
+        // Only apply delete if it happened after the record was last updated
+        if (deleteTimestamp > existingTime) {
           await dbTable.update(recordId, {
-            archivedAt: new Date(timestamp),
-            updatedAt: new Date(timestamp),
+            archivedAt: new Date(deleteTimestamp),
+            updatedAt: new Date(deleteTimestamp),
           })
         }
       }

@@ -60,10 +60,17 @@ export function setupSyncHooks(): void {
       primKey: string,
       obj: Record<string, unknown>
     ) {
-      if (!isApplyingRemoteChange && syncProvider.isConnected()) {
+      // Capture the flag NOW, not in the setTimeout callback
+      const shouldSkip = isApplyingRemoteChange
+      if (!shouldSkip && syncProvider.isConnected()) {
+        // Clone the object to avoid issues with transaction timing
+        const objCopy = JSON.parse(JSON.stringify(obj))
         // Use setTimeout to avoid blocking the transaction
         setTimeout(() => {
-          syncProvider.notifyChange(tableName, primKey, obj)
+          // Double-check we're still connected
+          if (syncProvider.isConnected()) {
+            syncProvider.notifyChange(tableName, primKey, objCopy)
+          }
         }, 0)
       }
     })
@@ -76,11 +83,15 @@ export function setupSyncHooks(): void {
       primKey: string,
       obj: Record<string, unknown>
     ) {
-      if (!isApplyingRemoteChange && syncProvider.isConnected()) {
-        // Merge modifications with existing object
-        const updatedObj = { ...obj, ...modifications }
+      // Capture the flag NOW, not in the setTimeout callback
+      const shouldSkip = isApplyingRemoteChange
+      if (!shouldSkip && syncProvider.isConnected()) {
+        // Merge modifications with existing object and clone
+        const updatedObj = JSON.parse(JSON.stringify({ ...obj, ...modifications }))
         setTimeout(() => {
-          syncProvider.notifyChange(tableName, primKey, updatedObj)
+          if (syncProvider.isConnected()) {
+            syncProvider.notifyChange(tableName, primKey, updatedObj)
+          }
         }, 0)
       }
     })
@@ -90,9 +101,13 @@ export function setupSyncHooks(): void {
       this: unknown,
       primKey: string
     ) {
-      if (!isApplyingRemoteChange && syncProvider.isConnected()) {
+      // Capture the flag NOW, not in the setTimeout callback
+      const shouldSkip = isApplyingRemoteChange
+      if (!shouldSkip && syncProvider.isConnected()) {
         setTimeout(() => {
-          syncProvider.notifyDelete(tableName, primKey)
+          if (syncProvider.isConnected()) {
+            syncProvider.notifyDelete(tableName, primKey)
+          }
         }, 0)
       }
     })
