@@ -532,27 +532,27 @@ export function StudyMaterialsPage() {
                 {showResults && (
                   <Card className="bg-primary/10 border-primary">
                     <CardContent className="py-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div>
-                            <span className="font-medium">Your Score:</span>
-                            <span className="text-2xl font-bold ml-2">
-                              {calculateScore().correct} / {calculateScore().total}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm sm:text-base">Your Score:</span>
+                            <span className="text-xl sm:text-2xl font-bold">
+                              {calculateScore().correct}/{calculateScore().total}
+                            </span>
+                            <span className={cn(
+                              'text-lg sm:text-xl font-semibold',
+                              calculateScore().percentage >= 80 ? 'text-green-600' :
+                              calculateScore().percentage >= 60 ? 'text-yellow-600' :
+                              'text-red-600'
+                            )}>
+                              ({calculateScore().percentage}%)
                             </span>
                           </div>
-                          <div className="w-32">
+                          <div className="w-full sm:w-32">
                             <Progress value={calculateScore().percentage} className="h-2" />
                           </div>
-                          <span className={cn(
-                            'text-lg font-semibold',
-                            calculateScore().percentage >= 80 ? 'text-green-600' :
-                            calculateScore().percentage >= 60 ? 'text-yellow-600' :
-                            'text-red-600'
-                          )}>
-                            {calculateScore().percentage}%
-                          </span>
                         </div>
-                        <Button onClick={handleRetakeExam} className="gap-2">
+                        <Button onClick={handleRetakeExam} size="sm" className="gap-2 w-full sm:w-auto">
                           <RotateCcw className="h-4 w-4" />
                           Retake Exam
                         </Button>
