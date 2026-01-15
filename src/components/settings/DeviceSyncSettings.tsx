@@ -36,7 +36,7 @@ export function DeviceSyncSettings() {
 
   const { status, connectedPeers, lastSyncedAt } = useSyncStatus()
   const { deviceId, deviceName, setDeviceName } = useDeviceInfo()
-  const { disconnect } = useSyncConnection()
+  const { disconnect, disconnectPeer } = useSyncConnection()
 
   const handleStartPairing = (mode: 'show' | 'scan') => {
     setPairingMode(mode)
@@ -216,27 +216,42 @@ export function DeviceSyncSettings() {
                       </div>
                     </div>
                   </div>
-                  <Badge
-                    variant={peer.isOnline ? 'default' : 'secondary'}
-                    className={peer.isOnline ? 'bg-green-500' : ''}
-                  >
-                    {peer.isOnline ? 'Syncing' : 'Offline'}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={peer.isOnline ? 'default' : 'secondary'}
+                      className={peer.isOnline ? 'bg-green-500' : ''}
+                    >
+                      {peer.isOnline ? 'Syncing' : 'Offline'}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => disconnectPeer(peer.id)}
+                      title="Disconnect this device"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
 
-            <Separator className="my-4" />
+            {connectedPeers.length > 1 && (
+              <>
+                <Separator className="my-4" />
 
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => disconnect()}
-              disabled={status === 'disconnected'}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Disconnect All
-            </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => disconnect()}
+                  disabled={status === 'disconnected'}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Disconnect All
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       )}
