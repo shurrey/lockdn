@@ -441,7 +441,19 @@ class SyncProvider {
   private sendSyncMessage(peerId: string, message: SyncMessage): void {
     const peerConn = this.peers.get(peerId)
     if (peerConn?.dc?.readyState === 'open') {
-      peerConn.dc.send(JSON.stringify(message))
+      const json = JSON.stringify(message)
+      console.log('[Sync] Sending message type:', message.type, 'size:', json.length, 'bytes')
+      if (json.length > 200000) {
+        console.warn('[Sync] WARNING: Large message, may exceed WebRTC limits!')
+      }
+      try {
+        peerConn.dc.send(json)
+        console.log('[Sync] Message sent successfully')
+      } catch (err) {
+        console.error('[Sync] Failed to send message:', err)
+      }
+    } else {
+      console.warn('[Sync] Cannot send message, data channel not open. State:', peerConn?.dc?.readyState)
     }
   }
 
@@ -475,7 +487,9 @@ class SyncProvider {
     data: string
   ): Promise<void> {
     try {
+      console.log('[Sync] Parsing sync message, length:', data.length)
       const message = JSON.parse(data) as SyncMessage
+      console.log('[Sync] Parsed message type:', message.type)
 
       switch (message.type) {
         case 'sync_request':
@@ -483,6 +497,13 @@ class SyncProvider {
           break
 
         case 'sync_response':
+          console.log('[Sync] Received sync_response, applying data...')
+          if (message.data) {
+            const tableNames = Object.keys(message.data as Record<string, unknown[]>)
+            const totalRecords = Object.values(message.data as Record<string, unknown[]>)
+              .reduce((sum, arr) => sum + arr.length, 0)
+            console.log('[Sync] sync_response contains', totalRecords, 'records across', tableNames.length, 'tables')
+          }
           await this.applyFullSync(message.data as Record<string, unknown[]>)
           break
 
@@ -511,8 +532,9 @@ class SyncProvider {
           // Acknowledgment received, no action needed
           break
       }
-    } catch {
-      // Invalid message, ignore
+    } catch (err) {
+      console.error('[Sync] Failed to handle sync message:', err)
+      console.error('[Sync] Message data (first 500 chars):', data.substring(0, 500))
     }
   }
 
