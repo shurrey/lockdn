@@ -425,7 +425,7 @@ export function CoursesPage() {
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="course-code">Course Code *</Label>
                 <Input
@@ -446,7 +446,7 @@ export function CoursesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="instructor">Instructor</Label>
                 <Input
@@ -458,12 +458,12 @@ export function CoursesPage() {
               </div>
               <div className="space-y-2">
                 <Label>Color</Label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {getColorsWithAvailability(usedColors).map((color) => (
                     <button
                       key={color.value}
                       className={cn(
-                        'w-8 h-8 rounded-full transition-all relative',
+                        'w-8 h-8 rounded-full transition-all relative flex-shrink-0',
                         manualCourseColor === color.value && 'ring-2 ring-offset-2 ring-primary'
                       )}
                       style={{ backgroundColor: color.value }}
@@ -481,7 +481,7 @@ export function CoursesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="semester-start">Semester Start</Label>
                 <Input
@@ -527,7 +527,7 @@ export function CoursesPage() {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-course-code">Course Code</Label>
                 <Input
@@ -546,7 +546,7 @@ export function CoursesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-instructor">Instructor</Label>
                 <Input
@@ -557,12 +557,12 @@ export function CoursesPage() {
               </div>
               <div className="space-y-2">
                 <Label>Color</Label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {getColorsWithAvailability(usedColors, selectedCourse?.color).map((color) => (
                     <button
                       key={color.value}
                       className={cn(
-                        'w-8 h-8 rounded-full transition-all relative',
+                        'w-8 h-8 rounded-full transition-all relative flex-shrink-0',
                         editCourseColor === color.value && 'ring-2 ring-offset-2 ring-primary'
                       )}
                       style={{ backgroundColor: color.value }}
@@ -580,7 +580,7 @@ export function CoursesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-semester-start">Semester Start</Label>
                 <Input
@@ -831,7 +831,7 @@ function ScheduleEditor({ schedule, onChange }: ScheduleEditorProps) {
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">Start Time</Label>
             <Input
@@ -848,7 +848,7 @@ function ScheduleEditor({ schedule, onChange }: ScheduleEditorProps) {
               onChange={(e) => setEndTime(e.target.value)}
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 col-span-2 sm:col-span-1">
             <Label className="text-xs">Location</Label>
             <Input
               placeholder="Room 101"
@@ -909,7 +909,7 @@ function AssignmentForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="assignment-type">Type</Label>
           <Select value={type} onValueChange={onTypeChange}>
@@ -939,7 +939,7 @@ function AssignmentForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="assignment-due-date">Due Date *</Label>
           <Input
@@ -1656,7 +1656,7 @@ function SyllabusUploadDialog({ open, onOpenChange, course, existingAssignments 
                             </SelectContent>
                           </Select>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="edit-due-date">Due Date</Label>
                             <Input

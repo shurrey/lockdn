@@ -242,7 +242,7 @@ export function ScheduleUploadStep({
           <CardContent className="space-y-4">
             <FileUpload onFilesSelected={handleFilesSelected} />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="semester-start">Semester Start (optional)</Label>
                 <Input
@@ -434,7 +434,7 @@ export function ScheduleUploadStep({
                       <h3 className="text-sm font-medium">Edit Course</h3>
                     </div>
                     <div className="flex-1 min-h-0 overflow-y-auto pr-2 space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="edit-code">Course Code</Label>
                           <Input
@@ -498,7 +498,7 @@ export function ScheduleUploadStep({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="edit-start-time">Start Time</Label>
                           <Input
