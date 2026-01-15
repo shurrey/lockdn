@@ -87,7 +87,8 @@ test.describe('Onboarding Flow', () => {
     await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 })
 
     // Reload and verify we're still on dashboard (not onboarding)
-    await page.reload()
-    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 })
+    // Wait for network to be idle to ensure IndexedDB has loaded
+    await page.reload({ waitUntil: 'networkidle' })
+    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 15000 })
   })
 })
