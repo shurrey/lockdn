@@ -281,13 +281,23 @@ export interface Milestone {
   description: string
 }
 
+// Grading result for a single question
+export interface QuestionGradeResult {
+  isCorrect: boolean
+  score: number // 0-10 scale
+  feedback?: string
+  spellingNote?: string
+  partialCredit?: boolean
+}
+
 // Exam attempt for tracking practice test performance
 export interface ExamAttempt {
   id: string
   examId: string // StudyMaterial id
   attemptNumber: number
   answers: Record<string, string | string[]> // questionId -> answer
-  score: number // number correct
+  gradeResults?: Record<string, QuestionGradeResult> // questionId -> grade result
+  score: number // total score points (out of totalQuestions * 10)
   totalQuestions: number
   percentage: number
   completedAt: Date

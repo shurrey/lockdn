@@ -184,19 +184,48 @@ function buildSystemPrompt(context: TutorContext, detectedMode: TutoringMode): s
             const bestAttempt = attempts.sort((a, b) => b.percentage - a.percentage)[0]
             materialsInfo += ` - ${attempts.length} attempt(s), latest: ${latestAttempt.percentage}%, best: ${bestAttempt.percentage}%`
 
-            // Show questions with attempt results
+            // Show questions with attempt results (using smart grading if available)
             if (exam.questions && exam.questions.length > 0) {
               materialsInfo += '\n  Questions:'
               for (const q of exam.questions.slice(0, 10)) {
                 const userAnswer = latestAttempt.answers[q.id]
-                const isCorrect = Array.isArray(q.correctAnswer)
-                  ? JSON.stringify(userAnswer) === JSON.stringify(q.correctAnswer)
-                  : userAnswer === q.correctAnswer
-                const status = isCorrect ? '✓' : '✗'
+                const gradeResult = latestAttempt.gradeResults?.[q.id]
+
+                // Use smart grading result if available, otherwise fall back to simple comparison
+                const isCorrect = gradeResult?.isCorrect ?? (
+                  Array.isArray(q.correctAnswer)
+                    ? JSON.stringify(userAnswer) === JSON.stringify(q.correctAnswer)
+                    : userAnswer === q.correctAnswer
+                )
+                const hasPartialCredit = gradeResult?.partialCredit ?? false
+                const score = gradeResult?.score
+
+                const status = isCorrect ? '✓' : hasPartialCredit ? '~' : '✗'
                 materialsInfo += `\n    ${status} ${q.question.substring(0, 80)}${q.question.length > 80 ? '...' : ''}`
-                if (!isCorrect) {
-                  materialsInfo += ` (Correct: ${Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer})`
+
+                // Show score for free-form questions
+                if (q.type === 'free_form' && score !== undefined) {
+                  materialsInfo += ` (Score: ${score}/10)`
                 }
+
+                // Show what was right/wrong
+                if (!isCorrect || hasPartialCredit) {
+                  if (userAnswer) {
+                    materialsInfo += `\n      Student answered: "${userAnswer}"`
+                  }
+                  materialsInfo += `\n      Correct answer: ${Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer}`
+
+                  // Include AI feedback for free-form questions
+                  if (gradeResult?.feedback && q.type === 'free_form') {
+                    materialsInfo += `\n      AI Feedback: ${gradeResult.feedback.substring(0, 200)}${gradeResult.feedback.length > 200 ? '...' : ''}`
+                  }
+
+                  // Include spelling note for fill-in-blank
+                  if (gradeResult?.spellingNote) {
+                    materialsInfo += `\n      Note: ${gradeResult.spellingNote}`
+                  }
+                }
+
                 if (q.explanation) {
                   materialsInfo += `\n      Explanation: ${q.explanation.substring(0, 100)}${q.explanation.length > 100 ? '...' : ''}`
                 }

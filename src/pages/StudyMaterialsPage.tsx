@@ -39,13 +39,16 @@ import {
   FileText,
   FileDown,
   X,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react'
 import { Mascot } from '@/components/Mascot'
 import { useCourses, archiveStudyMaterial } from '@/db/hooks'
 import { db, generateId } from '@/db'
 import { useLiveQuery } from 'dexie-react-hooks'
-import type { StudyMaterial, Course, ExamAttempt } from '@/types'
+import type { StudyMaterial, Course, ExamAttempt, QuestionGradeResult } from '@/types'
 import { exportToMarkdown, exportToPdf } from '@/lib/notesProcessor'
+import { gradeExam } from '@/lib/examGrading'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -74,6 +77,8 @@ export function StudyMaterialsPage() {
   const [examAnswers, setExamAnswers] = useState<Record<string, string | string[]>>({})
   const [showResults, setShowResults] = useState(false)
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set())
+  const [gradeResults, setGradeResults] = useState<Record<string, QuestionGradeResult>>({})
+  const [isGrading, setIsGrading] = useState(false)
 
   // Filter materials
   const filteredMaterials = useMemo(() => {
@@ -166,36 +171,42 @@ export function StudyMaterialsPage() {
   const handleSubmitExam = useCallback(async () => {
     if (!selectedMaterial?.questions) return
 
-    // Calculate score
-    let correct = 0
-    for (const q of selectedMaterial.questions) {
-      const userAnswer = examAnswers[q.id]
-      if (userAnswer === q.correctAnswer) {
-        correct++
-      }
+    setIsGrading(true)
+    toast.info('Grading your answers...')
+
+    try {
+      // Use smart grading system
+      const { results, totalScore, percentage, correctCount } = await gradeExam(
+        selectedMaterial.questions,
+        examAnswers
+      )
+
+      // Save attempt with grade results
+      const attemptNumber = currentExamAttempts.length + 1
+      await db.examAttempts.add({
+        id: generateId(),
+        examId: selectedMaterial.id,
+        attemptNumber,
+        answers: examAnswers,
+        gradeResults: results,
+        score: totalScore,
+        totalQuestions: selectedMaterial.questions.length,
+        percentage,
+        completedAt: new Date(),
+      })
+
+      setGradeResults(results)
+      setShowResults(true)
+      // Expand all questions to show results
+      setExpandedQuestions(new Set(selectedMaterial.questions.map((q) => q.id)))
+
+      toast.success(`Attempt ${attemptNumber} complete: ${correctCount}/${selectedMaterial.questions.length} correct (${percentage}%)`)
+    } catch (error) {
+      console.error('Grading failed:', error)
+      toast.error('Failed to grade exam. Please try again.')
+    } finally {
+      setIsGrading(false)
     }
-
-    const total = selectedMaterial.questions.length
-    const percentage = Math.round((correct / total) * 100)
-
-    // Save attempt
-    const attemptNumber = currentExamAttempts.length + 1
-    await db.examAttempts.add({
-      id: generateId(),
-      examId: selectedMaterial.id,
-      attemptNumber,
-      answers: examAnswers,
-      score: correct,
-      totalQuestions: total,
-      percentage,
-      completedAt: new Date(),
-    })
-
-    setShowResults(true)
-    // Expand all questions to show results
-    setExpandedQuestions(new Set(selectedMaterial.questions.map((q) => q.id)))
-
-    toast.success(`Attempt ${attemptNumber} complete: ${correct}/${total} (${percentage}%)`)
   }, [selectedMaterial, examAnswers, currentExamAttempts])
 
   const handleRetakeExam = useCallback(() => {
@@ -203,11 +214,13 @@ export function StudyMaterialsPage() {
     setShowResults(false)
     setExpandedQuestions(new Set())
     setSelectedAttempt(null)
+    setGradeResults({})
   }, [])
 
   const handleViewAttempt = useCallback((attempt: ExamAttempt) => {
     setSelectedAttempt(attempt)
     setExamAnswers(attempt.answers)
+    setGradeResults(attempt.gradeResults || {})
     setShowResults(true)
     if (selectedMaterial?.questions) {
       setExpandedQuestions(new Set(selectedMaterial.questions.map((q) => q.id)))
@@ -228,18 +241,26 @@ export function StudyMaterialsPage() {
   }, [])
 
   const calculateScore = useCallback(() => {
-    if (!selectedMaterial?.questions) return { correct: 0, total: 0, percentage: 0 }
+    if (!selectedMaterial?.questions) return { correct: 0, total: 0, percentage: 0, totalScore: 0 }
 
     let correct = 0
+    let totalScore = 0
     for (const q of selectedMaterial.questions) {
-      const userAnswer = examAnswers[q.id]
-      if (userAnswer === q.correctAnswer) {
-        correct++
+      const gradeResult = gradeResults[q.id]
+      if (gradeResult) {
+        if (gradeResult.isCorrect) correct++
+        totalScore += gradeResult.score
       }
     }
     const total = selectedMaterial.questions.length
-    return { correct, total, percentage: Math.round((correct / total) * 100) }
-  }, [selectedMaterial, examAnswers])
+    const maxScore = total * 10
+    return {
+      correct,
+      total,
+      percentage: maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0,
+      totalScore,
+    }
+  }, [selectedMaterial, gradeResults])
 
   const renderMaterialCard = (material: StudyMaterial) => {
     const course = getCourseById(material.courseId)
@@ -565,12 +586,15 @@ export function StudyMaterialsPage() {
                 {selectedMaterial.questions.map((question, index) => {
                   const isExpanded = expandedQuestions.has(question.id)
                   const userAnswer = examAnswers[question.id]
-                  const isCorrect = userAnswer === question.correctAnswer
+                  const gradeResult = gradeResults[question.id]
+                  const isCorrect = gradeResult?.isCorrect ?? false
+                  const hasPartialCredit = gradeResult?.partialCredit ?? false
 
                   return (
                     <Card key={question.id} className={cn(
                       showResults && isCorrect && 'border-green-300',
-                      showResults && !isCorrect && userAnswer && 'border-red-300'
+                      showResults && hasPartialCredit && 'border-yellow-300',
+                      showResults && !isCorrect && !hasPartialCredit && userAnswer && 'border-red-300'
                     )}>
                       <CardContent className="py-4">
                         <div
@@ -582,13 +606,30 @@ export function StudyMaterialsPage() {
                           </span>
                           <div className="flex-1">
                             <p className="font-medium">{question.question}</p>
-                            <Badge variant="outline" className="mt-1 text-xs">
-                              {question.bloomLevel}
-                            </Badge>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs">
+                                {question.bloomLevel}
+                              </Badge>
+                              {showResults && gradeResult && question.type === 'free_form' && (
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    'text-xs',
+                                    gradeResult.score >= 7 ? 'border-green-500 text-green-600' :
+                                    gradeResult.score >= 4 ? 'border-yellow-500 text-yellow-600' :
+                                    'border-red-500 text-red-600'
+                                  )}
+                                >
+                                  {gradeResult.score}/10
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                           {showResults && userAnswer && (
                             isCorrect ? (
                               <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+                            ) : hasPartialCredit ? (
+                              <AlertCircle className="h-5 w-5 text-yellow-500 flex-shrink-0" />
                             ) : (
                               <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                             )
@@ -655,20 +696,51 @@ export function StudyMaterialsPage() {
                             )}
 
                             {showResults && (
-                              <div className="p-4 bg-muted rounded-lg space-y-2">
-                                <p className="text-sm">
-                                  <strong>Correct Answer:</strong>{' '}
-                                  <span className="text-green-600 dark:text-green-400">
-                                    {Array.isArray(question.correctAnswer)
-                                      ? question.correctAnswer.join(', ')
-                                      : question.correctAnswer}
-                                  </span>
-                                </p>
-                                {question.explanation && (
-                                  <p className="text-sm text-muted-foreground">
-                                    <strong>Explanation:</strong> {question.explanation}
-                                  </p>
+                              <div className="space-y-3">
+                                {/* Spelling note for fill-in-blank */}
+                                {gradeResult?.spellingNote && (
+                                  <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                                    <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                                      {gradeResult.spellingNote}
+                                    </p>
+                                  </div>
                                 )}
+
+                                {/* AI feedback for free-form */}
+                                {gradeResult?.feedback && question.type === 'free_form' && (
+                                  <div className={cn(
+                                    'p-4 rounded-lg border',
+                                    gradeResult.isCorrect
+                                      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                                      : gradeResult.partialCredit
+                                      ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+                                      : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                                  )}>
+                                    <p className="text-sm font-medium mb-2">
+                                      AI Feedback (Score: {gradeResult.score}/10)
+                                    </p>
+                                    <div className="text-sm prose prose-sm dark:prose-invert max-w-none">
+                                      <ReactMarkdown>{gradeResult.feedback}</ReactMarkdown>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Reference answer */}
+                                <div className="p-4 bg-muted rounded-lg space-y-2">
+                                  <p className="text-sm">
+                                    <strong>{question.type === 'free_form' ? 'Reference Answer:' : 'Correct Answer:'}</strong>{' '}
+                                    <span className="text-green-600 dark:text-green-400">
+                                      {Array.isArray(question.correctAnswer)
+                                        ? question.correctAnswer.join(', ')
+                                        : question.correctAnswer}
+                                    </span>
+                                  </p>
+                                  {question.explanation && (
+                                    <p className="text-sm text-muted-foreground">
+                                      <strong>Explanation:</strong> {question.explanation}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                             )}
                           </div>
@@ -683,9 +755,16 @@ export function StudyMaterialsPage() {
                   <Button
                     className="w-full py-6 text-lg"
                     onClick={handleSubmitExam}
-                    disabled={Object.keys(examAnswers).length === 0}
+                    disabled={Object.keys(examAnswers).length === 0 || isGrading}
                   >
-                    Submit Answers
+                    {isGrading ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Grading...
+                      </>
+                    ) : (
+                      'Submit Answers'
+                    )}
                   </Button>
                 )}
               </div>
