@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { Settings, Plus, MessageSquare, Trash2, ChevronLeft, ChevronRight, Menu } from 'lucide-react'
+import { Settings, Plus, MessageSquare, Trash2, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Mascot } from '@/components/Mascot'
 import { ChatInterface } from '@/components/tutor/ChatInterface'
@@ -100,6 +100,8 @@ export function TutorPage() {
   }, [])
 
   const handleSelectConversation = useCallback((id: string) => {
+    // Clear current conversation first to avoid stale data race condition
+    setActiveConversation(null)
     setActiveConversationId(id)
     setMobileSheetOpen(false) // Close mobile sheet when selecting conversation
   }, [])
@@ -305,11 +307,12 @@ export function TutorPage() {
           )}
         </Card>
 
-        {/* Chat Area - Shrinks when resource is open */}
+        {/* Chat Area - Shrinks when resource is open (desktop only) */}
         <Card
           className={cn(
             'flex flex-col min-h-0 transition-all duration-300',
-            selectedResource ? 'w-96 flex-shrink-0' : 'flex-1'
+            // On mobile, hide chat when resource is open
+            selectedResource ? 'hidden md:flex md:w-96 md:flex-shrink-0' : 'flex-1'
           )}
         >
           <CardContent className="flex-1 p-4 flex flex-col min-h-0">
@@ -324,6 +327,14 @@ export function TutorPage() {
                 onResourceSelect={handleResourceSelect}
                 resourceOpen={!!selectedResource}
               />
+            ) : activeConversationId && !activeConversation ? (
+              // Loading state while fetching conversation
+              <div className="flex-1 flex flex-col items-center justify-center text-center">
+                <div className="animate-pulse">
+                  <Mascot size="lg" />
+                </div>
+                <p className="text-sm text-muted-foreground mt-4">Loading conversation...</p>
+              </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center">
                 <Mascot size="lg" />
@@ -340,15 +351,37 @@ export function TutorPage() {
           </CardContent>
         </Card>
 
-        {/* Resource Viewer - Takes remaining space */}
+        {/* Resource Viewer - Desktop: side panel, Mobile: fullscreen */}
         {selectedResource && (
-          <Card className="flex-1 flex flex-col min-h-0 animate-in slide-in-from-right duration-300">
-            <ResourceViewer
-              resource={selectedResource}
-              onClose={handleCloseResource}
-              compact
-            />
-          </Card>
+          <>
+            {/* Desktop: side panel */}
+            <Card className="hidden md:flex flex-1 flex-col min-h-0 animate-in slide-in-from-right duration-300">
+              <ResourceViewer
+                resource={selectedResource}
+                onClose={handleCloseResource}
+                compact
+              />
+            </Card>
+
+            {/* Mobile: fullscreen overlay */}
+            <div className="md:hidden fixed inset-0 z-50 bg-background flex flex-col">
+              <div className="flex items-center justify-between p-4 border-b">
+                <h2 className="font-semibold truncate flex-1 mr-2">
+                  {selectedResource.title}
+                </h2>
+                <Button variant="ghost" size="icon" onClick={handleCloseResource}>
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <ResourceViewer
+                  resource={selectedResource}
+                  onClose={handleCloseResource}
+                  compact={false}
+                />
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>
