@@ -531,16 +531,17 @@ export function NotesPage() {
 
       {/* Selection & Generation Actions */}
       {filteredNotes.length > 0 && (
-        <div className="mb-4 flex items-center justify-between bg-muted/50 rounded-lg p-3">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium">
+        <div className="mb-4 bg-muted/50 rounded-lg p-3 space-y-3">
+          {/* Top row: Selection info and selection controls */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium mr-auto">
               {selectedNoteIds.size} of {filteredNotes.length} selected
             </span>
             <Button variant="ghost" size="sm" onClick={selectAllNotes}>
               Select All
             </Button>
             <Button variant="ghost" size="sm" onClick={deselectAllNotes} disabled={selectedNoteIds.size === 0}>
-              Clear Selection
+              Clear
             </Button>
             {selectedNoteIds.size > 0 && (
               <Button
@@ -548,38 +549,44 @@ export function NotesPage() {
                 size="sm"
                 onClick={() => handleOpenPreview(0)}
               >
-                <Eye className="mr-2 h-4 w-4" />
-                Preview ({selectedNoteIds.size})
+                <Eye className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Preview ({selectedNoteIds.size})</span>
+                <span className="sm:hidden">({selectedNoteIds.size})</span>
               </Button>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Bottom row: Generate buttons */}
+          <div className="flex flex-wrap items-center gap-2">
             <Button
+              size="sm"
               onClick={() => handleGenerateStudyGuide(selectedNotes)}
               disabled={!canGenerate || generating !== null}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700"
               style={{ color: 'white' }}
             >
               {generating === 'guide' ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" />
               ) : (
-                <BookOpen className="mr-2 h-4 w-4" />
+                <BookOpen className="h-4 w-4 sm:mr-2" />
               )}
-              Generate Study Guide
+              <span className="hidden sm:inline">Generate Study Guide</span>
+              <span className="sm:hidden">Study Guide</span>
             </Button>
             <Button
+              size="sm"
               onClick={() => handleGeneratePracticeExam(selectedNotes)}
               disabled={!canGenerate || generating !== null}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700"
               style={{ color: 'white' }}
             >
               {generating === 'exam' ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" />
               ) : (
-                <ClipboardList className="mr-2 h-4 w-4" />
+                <ClipboardList className="h-4 w-4 sm:mr-2" />
               )}
-              Generate Practice Exam
+              <span className="hidden sm:inline">Generate Practice Exam</span>
+              <span className="sm:hidden">Practice Exam</span>
             </Button>
           </div>
         </div>
