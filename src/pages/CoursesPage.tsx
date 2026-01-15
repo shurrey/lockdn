@@ -70,6 +70,7 @@ import {
   type AssignmentDiffSummary,
 } from '@/lib/diffUtils'
 import { ScheduleUploadDialog } from '@/components/schedule'
+import { MarkCompleteDialog } from '@/components/assignments'
 import { SourceImageViewer, filesToSourceImages, type SourceImage } from '@/components/ui/source-image-viewer'
 import type { Course, Assignment, AssignmentType, ClassMeeting, DayOfWeek, CourseStreak } from '@/types'
 import { toast } from 'sonner'
@@ -114,6 +115,7 @@ export function CoursesPage() {
   const [showAddAssignmentDialog, setShowAddAssignmentDialog] = useState(false)
   const [showSyllabusUploadDialog, setShowSyllabusUploadDialog] = useState(false)
   const [showScheduleUploadDialog, setShowScheduleUploadDialog] = useState(false)
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null)
 
@@ -355,6 +357,11 @@ export function CoursesPage() {
     }
   }, [])
 
+  const handleMarkComplete = useCallback((assignment: Assignment) => {
+    setSelectedAssignment(assignment)
+    setShowCompleteDialog(true)
+  }, [])
+
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -389,6 +396,7 @@ export function CoursesPage() {
               onAddAssignment={() => handleAddAssignment(course)}
               onEditAssignment={(a) => handleEditAssignment(a, course)}
               onArchiveAssignment={handleArchiveAssignment}
+              onMarkComplete={handleMarkComplete}
             />
           ))}
         </div>
@@ -703,6 +711,13 @@ export function CoursesPage() {
         onOpenChange={setShowScheduleUploadDialog}
       />
 
+      {/* Mark Complete Dialog */}
+      <MarkCompleteDialog
+        assignment={selectedAssignment}
+        open={showCompleteDialog}
+        onOpenChange={setShowCompleteDialog}
+      />
+
       {/* Archive Course Dialog */}
       {archiveCourseId && (
         <ArchiveDialog
@@ -983,6 +998,7 @@ interface CourseCardProps {
   onAddAssignment: () => void
   onEditAssignment: (assignment: Assignment) => void
   onArchiveAssignment: (id: string) => void
+  onMarkComplete: (assignment: Assignment) => void
 }
 
 function CourseCard({
@@ -994,6 +1010,7 @@ function CourseCard({
   onAddAssignment,
   onEditAssignment,
   onArchiveAssignment,
+  onMarkComplete,
 }: CourseCardProps) {
   const assignments = useAssignments(course.id)
 
@@ -1102,11 +1119,22 @@ function CourseCard({
                   key={assignment.id}
                   className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm group"
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{assignment.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(assignment.dueDate), 'MMM d, h:mm a')}
-                    </p>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 flex-shrink-0 text-muted-foreground hover:text-green-500"
+                      onClick={() => onMarkComplete(assignment)}
+                      title="Mark complete"
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{assignment.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(assignment.dueDate), 'MMM d, h:mm a')}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button

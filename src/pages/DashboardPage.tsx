@@ -14,7 +14,10 @@ import {
   Upload,
   CheckCircle2,
   ArrowRight,
+  Check,
 } from 'lucide-react'
+import { MarkCompleteDialog } from '@/components/assignments'
+import type { Assignment } from '@/types'
 import {
   useCourses,
   useAssignments,
@@ -45,6 +48,8 @@ export function DashboardPage() {
   const studyPlan = useStudyPlan()
 
   const [showScheduleUpload, setShowScheduleUpload] = useState(false)
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null)
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false)
 
   const hasApiKey = apiKeys && apiKeys.length > 0
   const hasCourses = courses && courses.length > 0
@@ -212,10 +217,22 @@ export function DashboardPage() {
                 {upcomingAssignments.map((assignment) => (
                   <li
                     key={assignment.id}
-                    className="flex items-center justify-between text-sm"
+                    className="flex items-center gap-2 text-sm"
                   >
-                    <span className="truncate">{assignment.title}</span>
-                    <span className="text-muted-foreground">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 flex-shrink-0 text-muted-foreground hover:text-green-500"
+                      onClick={() => {
+                        setSelectedAssignment(assignment)
+                        setShowCompleteDialog(true)
+                      }}
+                      title="Mark complete"
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <span className="truncate flex-1">{assignment.title}</span>
+                    <span className="text-muted-foreground flex-shrink-0">
                       {new Date(assignment.dueDate).toLocaleDateString()}
                     </span>
                   </li>
@@ -438,6 +455,13 @@ export function DashboardPage() {
       <ScheduleUploadDialog
         open={showScheduleUpload}
         onOpenChange={setShowScheduleUpload}
+      />
+
+      {/* Mark Complete Dialog */}
+      <MarkCompleteDialog
+        assignment={selectedAssignment}
+        open={showCompleteDialog}
+        onOpenChange={setShowCompleteDialog}
       />
     </div>
   )

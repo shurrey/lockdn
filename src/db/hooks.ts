@@ -14,6 +14,7 @@ import type {
   ArchiveReason,
   ExamAttempt,
   DailySummary,
+  CoursePerformance,
 } from '@/types'
 
 // Hook to get sync version for forcing re-queries after sync
@@ -123,6 +124,126 @@ export async function updateAssignment(
 
 export async function deleteAssignment(id: string): Promise<void> {
   await db.assignments.delete(id)
+}
+
+/**
+ * Mark an assignment as complete with optional grade
+ * Automatically detects if late based on due date
+ */
+export async function markAssignmentComplete(
+  id: string,
+  options?: {
+    wasLate?: boolean  // Override auto-detection
+    grade?: number     // Optional grade (0-100)
+  }
+): Promise<void> {
+  const assignment = await db.assignments.get(id)
+  if (!assignment) return
+
+  const completedAt = now()
+  const wasLate = options?.wasLate ?? (completedAt > new Date(assignment.dueDate))
+
+  await db.assignments.update(id, {
+    status: 'completed',
+    completedAt,
+    wasLate,
+    grade: options?.grade,
+    updatedAt: completedAt,
+  })
+
+  // Update course performance analytics
+  await updateCoursePerformance(assignment.courseId)
+
+  // Get course name for activity recording
+  const course = await db.courses.get(assignment.courseId)
+  if (course) {
+    await recordStudyActivity(assignment.courseId, course.name, 'assignment_completed')
+  }
+}
+
+/**
+ * Update grade for an already completed assignment
+ */
+export async function updateAssignmentGrade(
+  id: string,
+  grade: number | undefined
+): Promise<void> {
+  const assignment = await db.assignments.get(id)
+  if (!assignment) return
+
+  await db.assignments.update(id, {
+    grade,
+    updatedAt: now(),
+  })
+
+  await updateCoursePerformance(assignment.courseId)
+}
+
+/**
+ * Recalculate and update course performance metrics
+ */
+export async function updateCoursePerformance(courseId: string): Promise<void> {
+  const assignments = await db.assignments
+    .where('courseId')
+    .equals(courseId)
+    .and((a) => a.archivedAt === undefined)
+    .toArray()
+
+  const completed = assignments.filter((a) => a.status === 'completed')
+  const graded = completed.filter((a) => a.grade !== undefined)
+  const late = completed.filter((a) => a.wasLate)
+
+  const averageGrade = graded.length > 0
+    ? graded.reduce((sum, a) => sum + (a.grade || 0), 0) / graded.length
+    : 0
+
+  // Calculate trend from last 5 graded assignments
+  const recentGraded = graded
+    .filter((a) => a.completedAt)
+    .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())
+    .slice(0, 5)
+
+  let trend: 'improving' | 'stable' | 'declining' | 'unknown' = 'unknown'
+  if (recentGraded.length >= 3) {
+    // Compare older half to newer half
+    const midpoint = Math.floor(recentGraded.length / 2)
+    const newerHalf = recentGraded.slice(0, midpoint)
+    const olderHalf = recentGraded.slice(midpoint)
+    const newerAvg = newerHalf.reduce((s, a) => s + (a.grade || 0), 0) / newerHalf.length
+    const olderAvg = olderHalf.reduce((s, a) => s + (a.grade || 0), 0) / olderHalf.length
+    const diff = newerAvg - olderAvg
+
+    if (diff > 5) trend = 'improving'
+    else if (diff < -5) trend = 'declining'
+    else trend = 'stable'
+  }
+
+  const performance: CoursePerformance = {
+    courseId,
+    assignmentCount: graded.length,
+    averageGrade,
+    trend,
+    lastGradeDate: recentGraded[0]?.completedAt
+      ? new Date(recentGraded[0].completedAt).toISOString().split('T')[0]
+      : undefined,
+    onTimeRate: completed.length > 0
+      ? ((completed.length - late.length) / completed.length) * 100
+      : 100,
+    completedCount: completed.length,
+    lateCount: late.length,
+  }
+
+  // Update analytics singleton
+  const analytics = await db.analytics.get('user_analytics')
+  if (analytics) {
+    await db.analytics.update('user_analytics', {
+      coursePerformance: {
+        ...(analytics.coursePerformance || {}),
+        [courseId]: performance,
+      },
+      updatedAt: now(),
+    })
+  }
 }
 
 // ============ Note Hooks ============
@@ -625,7 +746,7 @@ export async function updateAnalytics(
 export async function recordStudyActivity(
   courseId: string,
   courseName: string,
-  activityType: 'study_session' | 'practice_exam' | 'study_guide_review' | 'tutoring'
+  activityType: 'study_session' | 'practice_exam' | 'study_guide_review' | 'tutoring' | 'assignment_completed'
 ): Promise<void> {
   const analytics = await db.analytics.get('user_analytics')
   if (!analytics) return

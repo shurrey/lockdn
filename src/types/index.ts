@@ -1,6 +1,7 @@
 // Assignment types
 export type AssignmentType = 'exam' | 'paper' | 'homework' | 'project' | 'quiz' | 'other'
 export type AssignmentStatus = 'pending' | 'in_progress' | 'completed'
+export type GradeType = 'percentage' | 'letter' | 'points' | 'pass_fail'
 
 // Study material types
 export type StudyMaterialType = 'guide' | 'practice_exam'
@@ -69,6 +70,12 @@ export interface Assignment extends BaseEntity {
   status: AssignmentStatus
   estimatedEffort?: number // in minutes
   notes?: string
+  // Completion tracking
+  completedAt?: Date           // When marked complete
+  wasLate?: boolean            // Explicitly track if submitted late
+  // Grade tracking (percentage for now, extensible later)
+  grade?: number               // 0-100 percentage (undefined = not graded yet)
+  gradeType?: GradeType        // For future extensibility
 }
 
 // Note entity
@@ -256,6 +263,18 @@ export interface StreakRecord {
   achievedAt: Date
 }
 
+// Course grade performance tracking
+export interface CoursePerformance {
+  courseId: string
+  assignmentCount: number      // Total graded assignments
+  averageGrade: number         // Running average (0-100)
+  trend: 'improving' | 'stable' | 'declining' | 'unknown'
+  lastGradeDate?: string       // YYYY-MM-DD
+  onTimeRate: number           // Percentage of on-time completions
+  completedCount: number       // Total completed assignments
+  lateCount: number            // Assignments marked late
+}
+
 // Analytics - Streaks and milestones
 export interface Analytics {
   id: 'user_analytics' // singleton
@@ -270,6 +289,7 @@ export interface Analytics {
   courseStreaks: Record<string, CourseStreak> // courseId -> streak data
   streakRecords: StreakRecord[] // Historical notable streaks
   bestCourseStreak?: { courseId: string; courseName: string; streak: number; date: string }
+  coursePerformance: Record<string, CoursePerformance> // courseId -> grade performance
   updatedAt: Date
 }
 

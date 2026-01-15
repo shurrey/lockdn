@@ -24,7 +24,8 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Loader2, Sparkles, Play, Square, Brain, Flame } from 'lucide-react'
+import { Loader2, Sparkles, Play, Square, Brain, Flame, CheckCircle2 } from 'lucide-react'
+import { MarkCompleteDialog } from '@/components/assignments'
 import { useCourses, useAssignments, useStudySessions, useStudyPlan, usePreferences, useAnalytics, updateAssignment, saveStudyPlan, createStudySession, updateStudySession } from '@/db/hooks'
 import { generateStudyPlan } from '@/lib/studyPlanner'
 import type { Assignment, AssignmentStatus, StudySession, PlannedStudySession, ClassMeeting, Course, DayOfWeek } from '@/types'
@@ -58,6 +59,7 @@ export function CalendarPage() {
   const calendarRef = useRef<FullCalendar>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null)
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false)
   const [selectedSession, setSelectedSession] = useState<StudySession | null>(null)
   const [selectedPlannedSession, setSelectedPlannedSession] = useState<PlannedStudySession | null>(null)
   const [filterCourse, setFilterCourse] = useState<string>('all')
@@ -632,19 +634,42 @@ export function CalendarPage() {
 
               <div>
                 <Label className="text-muted-foreground">Status</Label>
-                <Select
-                  value={selectedAssignment.status}
-                  onValueChange={(value) => handleStatusChange(value as AssignmentStatus)}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2 mt-1">
+                  <Select
+                    value={selectedAssignment.status}
+                    onValueChange={(value) => handleStatusChange(value as AssignmentStatus)}
+                  >
+                    <SelectTrigger className="flex-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {selectedAssignment.status !== 'completed' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                      onClick={() => setShowCompleteDialog(true)}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1" />
+                      Complete
+                    </Button>
+                  )}
+                </div>
+                {selectedAssignment.grade !== undefined && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Grade: {selectedAssignment.grade}%
+                    {selectedAssignment.wasLate && (
+                      <Badge variant="outline" className="ml-2 text-orange-600 border-orange-300">
+                        Late
+                      </Badge>
+                    )}
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -905,6 +930,14 @@ export function CalendarPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Mark Complete Dialog */}
+      <MarkCompleteDialog
+        assignment={selectedAssignment}
+        open={showCompleteDialog}
+        onOpenChange={setShowCompleteDialog}
+        onComplete={() => setSelectedAssignment(null)}
+      />
     </div>
   )
 }

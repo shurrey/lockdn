@@ -114,6 +114,24 @@ class StudentToolsDatabase extends Dexie {
       semesterArchives: 'id, semesterName, archivedAt, permanentlyDeletedAt',
       tutorBehavioralProfile: 'id',
     })
+
+    // Version 6: Add assignment completion tracking and grade fields
+    this.version(6).stores({
+      courses: 'id, name, code, archivedAt, createdAt, updatedAt',
+      assignments: 'id, courseId, archivedAt, title, type, dueDate, status, completedAt, grade, createdAt, updatedAt',
+      notes: 'id, courseId, archivedAt, title, createdAt, updatedAt, *topics',
+      studyMaterials: 'id, courseId, archivedAt, type, title, createdAt, updatedAt',
+      studySessions: 'id, courseId, archivedAt, plannedStart, actualStart, completed, createdAt',
+      studyPlan: 'id, generatedAt',
+      preferences: 'id',
+      encryptedApiKeys: 'id, provider, createdAt',
+      tutoringConversations: 'id, courseId, archivedAt, createdAt, updatedAt',
+      dailySummaries: 'id, date',
+      analytics: 'id',
+      examAttempts: 'id, examId, archivedAt, attemptNumber, completedAt',
+      semesterArchives: 'id, semesterName, archivedAt, permanentlyDeletedAt',
+      tutorBehavioralProfile: 'id',
+    })
   }
 }
 
@@ -172,6 +190,7 @@ export async function initializeDefaults(): Promise<void> {
       milestones: [],
       courseStreaks: {},
       streakRecords: [],
+      coursePerformance: {},
       updatedAt: now(),
     })
   } else {
@@ -179,6 +198,7 @@ export async function initializeDefaults(): Promise<void> {
     const updates: Record<string, unknown> = {}
     if (!existingAnalytics.courseStreaks) updates.courseStreaks = {}
     if (!existingAnalytics.streakRecords) updates.streakRecords = []
+    if (!existingAnalytics.coursePerformance) updates.coursePerformance = {}
     if (Object.keys(updates).length > 0) {
       await db.analytics.update('user_analytics', { ...updates, updatedAt: now() })
     }
