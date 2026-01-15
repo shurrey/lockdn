@@ -2,11 +2,15 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Onboarding Flow', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear IndexedDB before each test to start fresh
+    // Clear IndexedDB and localStorage before each test to start fresh
     await page.goto('/')
     await page.evaluate(() => {
+      // Clear localStorage (includes sync state)
+      localStorage.clear()
+
+      // Clear IndexedDB
       return new Promise<void>((resolve, reject) => {
-        const req = indexedDB.deleteDatabase('lockdn-db')
+        const req = indexedDB.deleteDatabase('StudentToolsDB')
         req.onsuccess = () => resolve()
         req.onerror = () => reject(req.error)
       })
@@ -87,8 +91,8 @@ test.describe('Onboarding Flow', () => {
     await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 10000 })
 
     // Reload and verify we're still on dashboard (not onboarding)
-    // Wait for network to be idle to ensure IndexedDB has loaded
-    await page.reload({ waitUntil: 'networkidle' })
+    // Use domcontentloaded instead of networkidle to avoid waiting on WebSocket connections
+    await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 15000 })
   })
 })

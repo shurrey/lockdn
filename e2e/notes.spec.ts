@@ -2,11 +2,12 @@ import { test, expect, Page } from '@playwright/test'
 
 // Helper function to complete onboarding quickly
 async function completeOnboarding(page: Page) {
-  // Clear IndexedDB
+  // Clear IndexedDB and localStorage
   await page.goto('/')
   await page.evaluate(() => {
+    localStorage.clear()
     return new Promise<void>((resolve, reject) => {
-      const req = indexedDB.deleteDatabase('lockdn-db')
+      const req = indexedDB.deleteDatabase('StudentToolsDB')
       req.onsuccess = () => resolve()
       req.onerror = () => reject(req.error)
     })
