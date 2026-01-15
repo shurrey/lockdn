@@ -550,6 +550,16 @@ class SyncProvider {
   }
 
   /**
+   * Get timestamp from a Date object or ISO string
+   */
+  private getTimestamp(value: Date | string | undefined | null): number {
+    if (!value) return 0
+    if (value instanceof Date) return value.getTime()
+    if (typeof value === 'string') return new Date(value).getTime()
+    return 0
+  }
+
+  /**
    * Apply full sync data from a peer
    */
   private async applyFullSync(
@@ -574,11 +584,13 @@ class SyncProvider {
             await dbTable.add(record)
             console.log(`[Sync] Added new record to ${table}:`, (record as { id: string }).id)
           } else {
-            // Compare timestamps and keep newer
-            const existingTime =
-              (existing as { updatedAt?: Date }).updatedAt?.getTime() || 0
-            const incomingTime =
-              (record as { updatedAt?: Date }).updatedAt?.getTime() || 0
+            // Compare timestamps and keep newer (handle both Date objects and ISO strings)
+            const existingTime = this.getTimestamp(
+              (existing as { updatedAt?: Date | string }).updatedAt
+            )
+            const incomingTime = this.getTimestamp(
+              (record as { updatedAt?: Date | string }).updatedAt
+            )
 
             if (incomingTime > existingTime) {
               await dbTable.put(record)
@@ -613,9 +625,10 @@ class SyncProvider {
         // New record
         await dbTable.add(data)
       } else {
-        // Compare timestamps
-        const existingTime =
-          (existing as { updatedAt?: Date }).updatedAt?.getTime() || 0
+        // Compare timestamps (handle both Date objects and ISO strings)
+        const existingTime = this.getTimestamp(
+          (existing as { updatedAt?: Date | string }).updatedAt
+        )
 
         if (timestamp > existingTime) {
           await dbTable.put(data)
@@ -641,8 +654,10 @@ class SyncProvider {
       const existing = await dbTable.get(recordId)
 
       if (existing) {
-        const existingTime =
-          (existing as { updatedAt?: Date }).updatedAt?.getTime() || 0
+        // Compare timestamps (handle both Date objects and ISO strings)
+        const existingTime = this.getTimestamp(
+          (existing as { updatedAt?: Date | string }).updatedAt
+        )
 
         if (timestamp > existingTime) {
           // Apply archive
