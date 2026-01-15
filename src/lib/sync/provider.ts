@@ -40,6 +40,22 @@ interface PeerConnection {
   peerId: string
 }
 
+// Chunk message for reassembly
+interface ChunkMessage {
+  type: 'chunk'
+  messageId: string
+  chunkIndex: number
+  totalChunks: number
+  data: string
+}
+
+// Pending chunks waiting for reassembly
+interface PendingChunks {
+  chunks: Map<number, string>
+  totalChunks: number
+  receivedAt: number
+}
+
 class SyncProvider {
   private ws: WebSocket | null = null
   private peers: Map<string, PeerConnection> = new Map()
@@ -47,6 +63,7 @@ class SyncProvider {
   private pairingSecret: string | null = null
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null
   private pingTimer: ReturnType<typeof setInterval> | null = null
+  private pendingChunks: Map<string, PendingChunks> = new Map() // messageId -> chunks
 
   /**
    * Connect to a sync room
@@ -394,8 +411,21 @@ class SyncProvider {
     }
 
     dc.onmessage = (event) => {
-      console.log('[Sync] Data channel message from', peerId, ':', event.data.substring(0, 100))
-      this.handleSyncMessage(peerId, event.data)
+      const data = event.data as string
+      console.log('[Sync] Data channel message from', peerId, ', length:', data.length)
+
+      // Check if this is a chunk message
+      try {
+        const parsed = JSON.parse(data)
+        if (parsed.type === 'chunk') {
+          this.handleChunk(peerId, parsed as ChunkMessage)
+          return
+        }
+      } catch {
+        // Not JSON or not a chunk, continue to normal handling
+      }
+
+      this.handleSyncMessage(peerId, data)
     }
 
     dc.onclose = () => {
@@ -405,6 +435,49 @@ class SyncProvider {
 
     dc.onerror = (error) => {
       console.error('[Sync] Data channel ERROR with peer:', peerId, error)
+    }
+  }
+
+  /**
+   * Handle incoming chunk and reassemble when complete
+   */
+  private handleChunk(peerId: string, chunk: ChunkMessage): void {
+    const { messageId, chunkIndex, totalChunks, data } = chunk
+    console.log(`[Sync] Received chunk ${chunkIndex + 1}/${totalChunks} for message ${messageId.substring(0, 8)}`)
+
+    // Get or create pending chunks for this message
+    let pending = this.pendingChunks.get(messageId)
+    if (!pending) {
+      pending = {
+        chunks: new Map(),
+        totalChunks,
+        receivedAt: Date.now(),
+      }
+      this.pendingChunks.set(messageId, pending)
+    }
+
+    // Store this chunk
+    pending.chunks.set(chunkIndex, data)
+
+    // Check if we have all chunks
+    if (pending.chunks.size === totalChunks) {
+      console.log(`[Sync] All ${totalChunks} chunks received, reassembling message`)
+
+      // Reassemble in order
+      let fullMessage = ''
+      for (let i = 0; i < totalChunks; i++) {
+        fullMessage += pending.chunks.get(i) || ''
+      }
+
+      // Clean up
+      this.pendingChunks.delete(messageId)
+
+      console.log(`[Sync] Reassembled message size: ${fullMessage.length} bytes`)
+
+      // Process the reassembled message
+      this.handleSyncMessage(peerId, fullMessage)
+    } else {
+      console.log(`[Sync] Waiting for more chunks: ${pending.chunks.size}/${totalChunks}`)
     }
   }
 
@@ -435,26 +508,60 @@ class SyncProvider {
     useSyncStore.getState().removePeer(peerId)
   }
 
+  // Max chunk size (leave room for chunk metadata)
+  private static readonly MAX_CHUNK_SIZE = 200000 // 200KB, well under 262KB limit
+
   /**
-   * Send a sync message to a peer
+   * Send a sync message to a peer (with chunking for large messages)
    */
   private sendSyncMessage(peerId: string, message: SyncMessage): void {
     const peerConn = this.peers.get(peerId)
-    if (peerConn?.dc?.readyState === 'open') {
-      const json = JSON.stringify(message)
-      console.log('[Sync] Sending message type:', message.type, 'size:', json.length, 'bytes')
-      if (json.length > 200000) {
-        console.warn('[Sync] WARNING: Large message, may exceed WebRTC limits!')
-      }
+    if (!peerConn?.dc || peerConn.dc.readyState !== 'open') {
+      console.warn('[Sync] Cannot send message, data channel not open. State:', peerConn?.dc?.readyState)
+      return
+    }
+
+    const json = JSON.stringify(message)
+    console.log('[Sync] Sending message type:', message.type, 'size:', json.length, 'bytes')
+
+    // If message fits in one chunk, send directly
+    if (json.length <= SyncProvider.MAX_CHUNK_SIZE) {
       try {
         peerConn.dc.send(json)
-        console.log('[Sync] Message sent successfully')
+        console.log('[Sync] Message sent successfully (single chunk)')
       } catch (err) {
         console.error('[Sync] Failed to send message:', err)
       }
-    } else {
-      console.warn('[Sync] Cannot send message, data channel not open. State:', peerConn?.dc?.readyState)
+      return
     }
+
+    // Large message - split into chunks
+    const messageId = crypto.randomUUID()
+    const totalChunks = Math.ceil(json.length / SyncProvider.MAX_CHUNK_SIZE)
+    console.log(`[Sync] Large message, splitting into ${totalChunks} chunks`)
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * SyncProvider.MAX_CHUNK_SIZE
+      const end = Math.min(start + SyncProvider.MAX_CHUNK_SIZE, json.length)
+      const chunkData = json.slice(start, end)
+
+      const chunk = {
+        type: 'chunk',
+        messageId,
+        chunkIndex: i,
+        totalChunks,
+        data: chunkData,
+      }
+
+      try {
+        peerConn.dc.send(JSON.stringify(chunk))
+        console.log(`[Sync] Sent chunk ${i + 1}/${totalChunks}`)
+      } catch (err) {
+        console.error(`[Sync] Failed to send chunk ${i + 1}:`, err)
+        return
+      }
+    }
+    console.log('[Sync] All chunks sent successfully')
   }
 
   /**
