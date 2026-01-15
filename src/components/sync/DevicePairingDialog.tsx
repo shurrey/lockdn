@@ -54,14 +54,19 @@ export function DevicePairingDialog({
 
   // Generate code and connect to room when dialog opens in "show" mode
   useEffect(() => {
+    console.log('[Sync] Dialog effect running:', { open, mode, hasQrData: !!qrData })
     if (open && mode === 'show' && !qrData) {
-      const { data } = generate()
+      console.log('[Sync] Generating pairing code...')
+      const result = generate()
+      console.log('[Sync] Generate result:', result)
       // Connect to the room so we're waiting for peers
-      if (data) {
-        console.log('[Sync] Host connecting to room:', data.roomId)
-        syncProvider.connect(data.roomId, data.secret).catch((err) => {
+      if (result?.data) {
+        console.log('[Sync] Host connecting to room:', result.data.roomId)
+        syncProvider.connect(result.data.roomId, result.data.secret).catch((err) => {
           console.error('[Sync] Host failed to connect:', err)
         })
+      } else {
+        console.error('[Sync] No data returned from generate()')
       }
     }
   }, [open, mode, qrData, generate])
