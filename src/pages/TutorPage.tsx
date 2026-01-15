@@ -151,10 +151,10 @@ export function TutorPage() {
   // Show API key setup if not configured
   if (!hasApiKey) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground">AI Tutor</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">AI Tutor</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Get help with your coursework from your AI study buddy.
           </p>
         </div>
@@ -163,7 +163,7 @@ export function TutorPage() {
           <CardHeader>
             <CardTitle>Configure API Key</CardTitle>
           </CardHeader>
-          <CardContent className="min-h-[400px] flex flex-col items-center justify-center">
+          <CardContent className="min-h-[300px] md:min-h-[400px] flex flex-col items-center justify-center">
             <Mascot size="lg" />
             <p className="text-sm text-muted-foreground mb-4 text-center mt-4">
               To use the AI tutor, you need to configure an API key first.
@@ -181,19 +181,19 @@ export function TutorPage() {
   }
 
   return (
-    <div className="p-6 h-full flex flex-col">
+    <div className="p-4 md:p-6 h-full flex flex-col">
       <div className="mb-4">
-        <h1 className="text-3xl font-bold text-foreground">AI Tutor</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">AI Tutor</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
           Get help with your coursework from your AI study buddy.
         </p>
       </div>
 
       <div className="flex-1 flex gap-4 min-h-0">
-        {/* Conversation Sidebar - Collapsible */}
+        {/* Conversation Sidebar - Collapsible, hidden on mobile by default */}
         <Card
           className={cn(
-            'flex-shrink-0 flex flex-col transition-all duration-300',
+            'flex-shrink-0 flex-col transition-all duration-300 hidden md:flex',
             sidebarCollapsed ? 'w-12' : 'w-64'
           )}
         >

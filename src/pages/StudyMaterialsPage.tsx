@@ -316,16 +316,16 @@ export function StudyMaterialsPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-6">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Study Materials</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Study Materials</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             View your generated study guides and practice exams.
           </p>
         </div>
         <Select value={filterCourse} onValueChange={setFilterCourse}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="All Courses" />
           </SelectTrigger>
           <SelectContent>

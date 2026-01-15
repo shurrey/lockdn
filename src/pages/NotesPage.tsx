@@ -500,17 +500,17 @@ export function NotesPage() {
   }, [selectedNotes.length])
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-6">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Notes</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Notes</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Click notes to select them, then generate study materials.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Select value={filterCourse} onValueChange={setFilterCourse}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Courses" />
             </SelectTrigger>
             <SelectContent>
@@ -522,7 +522,7 @@ export function NotesPage() {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={() => setShowUploadDialog(true)}>
+          <Button size="sm" className="flex-1 sm:flex-none" onClick={() => setShowUploadDialog(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Upload Notes
           </Button>

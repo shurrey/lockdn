@@ -356,20 +356,20 @@ export function CoursesPage() {
   }, [])
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-6">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Courses</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Courses</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Manage your courses, schedules, and assignments.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowScheduleUploadDialog(true)}>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => setShowScheduleUploadDialog(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Import Schedule
           </Button>
-          <Button onClick={() => handleOpenAddDialog()}>
+          <Button size="sm" className="flex-1 sm:flex-none" onClick={() => handleOpenAddDialog()}>
             <Plus className="mr-2 h-4 w-4" />
             Add Course
           </Button>

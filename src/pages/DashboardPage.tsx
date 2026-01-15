@@ -79,10 +79,10 @@ export function DashboardPage() {
   }, [assignments, courses, studySessions, studyPlan, studyMaterials, notes, analytics, hasApiKey])
 
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
           {isFirstTimeUser
             ? "Let's get you set up for success!"
             : "Welcome back! Here's what needs your attention."}
