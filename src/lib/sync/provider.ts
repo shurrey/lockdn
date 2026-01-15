@@ -377,6 +377,9 @@ class SyncProvider {
     if (!dc) return
 
     dc.onopen = () => {
+      // Send our device info first
+      this.sendDeviceInfo(peerId)
+      // Then request sync
       this.requestSync(peerId)
     }
 
@@ -534,6 +537,23 @@ class SyncProvider {
   }
 
   /**
+   * Send device info to a peer
+   */
+  private sendDeviceInfo(peerId: string): void {
+    const store = useSyncStore.getState()
+    const message: SyncMessage = {
+      type: 'device_info',
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      data: {
+        deviceId: store.deviceId,
+        deviceName: store.deviceName,
+      },
+    }
+    this.sendSyncMessage(peerId, message)
+  }
+
+  /**
    * Handle incoming sync message
    */
   private async handleSyncMessage(
@@ -574,6 +594,13 @@ class SyncProvider {
           break
 
         case 'ack':
+          break
+
+        case 'device_info':
+          if (message.data) {
+            const { deviceName } = message.data as { deviceId: string; deviceName: string }
+            useSyncStore.getState().updatePeer(peerId, { name: deviceName })
+          }
           break
       }
     } catch (err) {

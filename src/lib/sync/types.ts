@@ -52,6 +52,7 @@ export type SyncMessageType =
   | 'change' // Single record change
   | 'delete' // Record deletion (archive)
   | 'ack' // Acknowledgment
+  | 'device_info' // Device identification handshake
 
 // Table names that can be synced
 export type SyncableTable =
