@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -55,6 +55,8 @@ export function CalendarPage() {
   const studySessions = useStudySessions()
   const studyPlan = useStudyPlan()
   const preferences = usePreferences()
+  const calendarRef = useRef<FullCalendar>(null)
+  const [isMobile, setIsMobile] = useState(false)
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null)
   const [selectedSession, setSelectedSession] = useState<StudySession | null>(null)
   const [selectedPlannedSession, setSelectedPlannedSession] = useState<PlannedStudySession | null>(null)
@@ -78,6 +80,28 @@ export function CalendarPage() {
     assignmentTitle?: string
     studyTopics?: string[]
   } | null>(null)
+
+  // Detect mobile and set appropriate calendar view
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+      // Change calendar view when crossing the breakpoint
+      if (calendarRef.current) {
+        const calendarApi = calendarRef.current.getApi()
+        const currentView = calendarApi.view.type
+        if (mobile && currentView === 'dayGridMonth') {
+          calendarApi.changeView('timeGridDay')
+        } else if (!mobile && currentView === 'timeGridDay') {
+          calendarApi.changeView('dayGridMonth')
+        }
+      }
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Convert assignments to calendar events
   const assignmentEvents = useMemo<EventInput[]>(() => {
@@ -362,72 +386,97 @@ export function CalendarPage() {
   }, [selectedSession, courses])
 
   return (
-    <div className="p-6 h-full flex flex-col">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Calendar</h1>
-          <p className="text-muted-foreground">
-            View your assignments and study sessions.
-          </p>
+    <div className="p-4 md:p-6 h-full flex flex-col">
+      {/* Header */}
+      <div className="mb-4 md:mb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-shrink-0">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Calendar</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              View your assignments and study sessions.
+            </p>
+          </div>
+          {/* Type filter - visible on desktop */}
+          <div className="hidden md:block">
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="exam">Exams</SelectItem>
+                <SelectItem value="quiz">Quizzes</SelectItem>
+                <SelectItem value="homework">Homework</SelectItem>
+                <SelectItem value="paper">Papers</SelectItem>
+                <SelectItem value="project">Projects</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+
+        {/* Filter toggles - scrollable row on mobile */}
+        <div className="mt-3 flex items-center gap-3 md:gap-4 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Switch
               id="show-sessions"
               checked={showStudySessions}
               onCheckedChange={setShowStudySessions}
             />
-            <Label htmlFor="show-sessions" className="text-sm">
-              Started Sessions
+            <Label htmlFor="show-sessions" className="text-xs md:text-sm whitespace-nowrap">
+              Sessions
             </Label>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Switch
               id="show-planned"
               checked={showPlannedSessions}
               onCheckedChange={setShowPlannedSessions}
             />
-            <Label htmlFor="show-planned" className="text-sm">
-              Planned Sessions
+            <Label htmlFor="show-planned" className="text-xs md:text-sm whitespace-nowrap">
+              Planned
             </Label>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Switch
               id="show-classes"
               checked={showClassMeetings}
               onCheckedChange={setShowClassMeetings}
             />
-            <Label htmlFor="show-classes" className="text-sm">
+            <Label htmlFor="show-classes" className="text-xs md:text-sm whitespace-nowrap">
               Classes
             </Label>
           </div>
 
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="exam">Exams</SelectItem>
-              <SelectItem value="quiz">Quizzes</SelectItem>
-              <SelectItem value="homework">Homework</SelectItem>
-              <SelectItem value="paper">Papers</SelectItem>
-              <SelectItem value="project">Projects</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Type filter - mobile only */}
+          <div className="md:hidden flex-shrink-0">
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="w-[120px] h-8 text-xs">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="exam">Exams</SelectItem>
+                <SelectItem value="quiz">Quizzes</SelectItem>
+                <SelectItem value="homework">Homework</SelectItem>
+                <SelectItem value="paper">Papers</SelectItem>
+                <SelectItem value="project">Projects</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* Course Legend - clickable filters */}
-      <div className="mb-4 flex items-center gap-2 flex-wrap">
-        <span className="text-sm text-muted-foreground mr-2">Courses:</span>
+      {/* Course Legend - scrollable on mobile */}
+      <div className="mb-3 md:mb-4 flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible md:flex-wrap">
+        <span className="text-sm text-muted-foreground mr-2 flex-shrink-0">Courses:</span>
         <button
           onClick={() => setFilterCourse('all')}
           className={cn(
-            'px-3 py-1 rounded-full text-sm font-medium transition-all',
+            'px-3 py-1 rounded-full text-sm font-medium transition-all flex-shrink-0',
             filterCourse === 'all'
               ? 'bg-primary text-primary-foreground'
               : 'bg-muted hover:bg-muted/80'
@@ -442,7 +491,7 @@ export function CalendarPage() {
               key={course.id}
               onClick={() => setFilterCourse(filterCourse === course.id ? 'all' : course.id)}
               className={cn(
-                'px-3 py-1 rounded-full text-sm font-medium transition-all flex items-center gap-2',
+                'px-3 py-1 rounded-full text-sm font-medium transition-all flex items-center gap-2 flex-shrink-0 whitespace-nowrap',
                 filterCourse === course.id
                   ? 'ring-2 ring-offset-2'
                   : 'hover:ring-1 hover:ring-offset-1'
@@ -454,7 +503,7 @@ export function CalendarPage() {
               }}
             >
               <span
-                className="w-3 h-3 rounded-full"
+                className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: course.color }}
               />
               {course.code}
@@ -510,19 +559,29 @@ export function CalendarPage() {
       <Card className="flex-1">
         <CardContent className="p-4 h-full">
           <FullCalendar
+            ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek',
-            }}
+            initialView={isMobile ? 'timeGridDay' : 'dayGridMonth'}
+            headerToolbar={
+              isMobile
+                ? {
+                    left: 'prev,next',
+                    center: 'title',
+                    right: 'timeGridDay,timeGridWeek',
+                  }
+                : {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                  }
+            }
             events={events}
             eventClick={handleEventClick}
             height="100%"
             eventDisplay="block"
             dayMaxEvents={true}
             expandRows={true}
+            titleFormat={isMobile ? { month: 'short', day: 'numeric' } : undefined}
           />
         </CardContent>
       </Card>
