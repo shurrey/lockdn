@@ -23,7 +23,7 @@ import {
   HelpCircle,
   GraduationCap,
 } from 'lucide-react'
-import { format, isPast } from 'date-fns'
+import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import {
   calculateWeightedGrade,
@@ -34,7 +34,7 @@ import {
 } from '@/lib/gradeCalculator'
 import { useAssignments, updateAssignmentGrade } from '@/db/hooks'
 import { toast } from 'sonner'
-import type { Course, Assignment } from '@/types'
+import type { Course } from '@/types'
 
 interface CourseGradesModalProps {
   open: boolean
@@ -325,7 +325,12 @@ export function CourseGradesModal({ open, onOpenChange, course }: CourseGradesMo
           <div className="flex items-center gap-3">
             <GraduationCap className="h-8 w-8 text-muted-foreground" />
             <div>
-              <p className="text-sm text-muted-foreground">Weighted Grade</p>
+              <p className="text-sm text-muted-foreground">
+                {result.isEqualWeight ? 'Average Grade' : 'Weighted Grade'}
+                {result.isEqualWeight && (
+                  <span className="ml-1 text-xs">(equal weight)</span>
+                )}
+              </p>
               {weightedGrade !== null ? (
                 <div className="flex items-baseline gap-2">
                   <span className={cn('text-3xl font-bold', getGradeColor(weightedGrade))}>
@@ -342,7 +347,9 @@ export function CourseGradesModal({ open, onOpenChange, course }: CourseGradesMo
           </div>
           <div className="text-right text-sm text-muted-foreground">
             <p>
-              {totalWeight.toFixed(0)}% of grade calculated
+              {result.isEqualWeight
+                ? `${breakdown.graded.length + breakdown.pastDueZero.length} of ${weightedItems.length} graded`
+                : `${totalWeight.toFixed(0)}% of grade calculated`}
             </p>
             <p>
               {breakdown.graded.length + breakdown.pastDueZero.length} of{' '}

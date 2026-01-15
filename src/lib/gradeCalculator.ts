@@ -11,12 +11,13 @@ export interface GradeCalculationResult {
   weightedGrade: number | null  // null if no gradeable assignments
   totalWeight: number           // sum of weights for included assignments
   maxPossibleWeight: number     // sum of all assignment weights
+  isEqualWeight: boolean        // true if using equal weighting (no weights defined)
 
   breakdown: {
     graded: GradeBreakdownItem[]        // has grade, included in calculation
     pastDueZero: GradeBreakdownItem[]   // past due, no grade, counted as 0
     pending: GradeBreakdownItem[]       // future, no grade, excluded
-    noWeight: GradeBreakdownItem[]      // no weight defined, excluded
+    noWeight: GradeBreakdownItem[]      // no weight defined, excluded (only when mixed)
   }
 }
 
@@ -24,14 +25,14 @@ export interface GradeCalculationResult {
  * Calculate weighted grade for a set of assignments
  *
  * Rules:
+ * - If NO assignments have weights: use equal weighting (simple average)
+ * - If assignments have weights: use weighted calculation
  * - Graded assignments: use actual grade
  * - Past due + not graded: count as 0%
  * - Future/pending without grades: exclude from calculation
- * - Assignments without weight defined: exclude, track separately
+ * - Mixed weights: assignments without weight are excluded
  */
 export function calculateWeightedGrade(assignments: Assignment[]): GradeCalculationResult {
-  const now = new Date()
-
   const breakdown: GradeCalculationResult['breakdown'] = {
     graded: [],
     pastDueZero: [],
@@ -39,20 +40,40 @@ export function calculateWeightedGrade(assignments: Assignment[]): GradeCalculat
     noWeight: [],
   }
 
+  // Filter out archived assignments
+  const activeAssignments = assignments.filter(a => !a.archivedAt)
+
+  if (activeAssignments.length === 0) {
+    return {
+      weightedGrade: null,
+      totalWeight: 0,
+      maxPossibleWeight: 0,
+      isEqualWeight: false,
+      breakdown,
+    }
+  }
+
+  // Check if ANY assignments have weights defined
+  const assignmentsWithWeight = activeAssignments.filter(a => a.weight !== undefined)
+  const useEqualWeight = assignmentsWithWeight.length === 0
+
+  // Calculate equal weight per assignment if needed
+  const equalWeight = useEqualWeight ? 100 / activeAssignments.length : 0
+
   let maxPossibleWeight = 0
 
   // Categorize each assignment
-  for (const assignment of assignments) {
-    // Skip archived assignments
-    if (assignment.archivedAt) continue
+  for (const assignment of activeAssignments) {
+    // Determine effective weight for this assignment
+    const effectiveWeight = useEqualWeight ? equalWeight : assignment.weight
 
     // Track total possible weight
-    if (assignment.weight !== undefined) {
-      maxPossibleWeight += assignment.weight
+    if (effectiveWeight !== undefined) {
+      maxPossibleWeight += effectiveWeight
     }
 
-    // No weight defined - exclude from calculation
-    if (assignment.weight === undefined) {
+    // No weight defined AND we're using weighted mode - exclude from calculation
+    if (!useEqualWeight && assignment.weight === undefined) {
       breakdown.noWeight.push({
         assignment,
         effectiveGrade: null,
@@ -67,7 +88,7 @@ export function calculateWeightedGrade(assignments: Assignment[]): GradeCalculat
 
     if (hasGrade) {
       // Has a grade - include with actual grade
-      const contribution = (assignment.weight * assignment.grade!) / 100
+      const contribution = (effectiveWeight! * assignment.grade!) / 100
       breakdown.graded.push({
         assignment,
         effectiveGrade: assignment.grade!,
@@ -98,14 +119,28 @@ export function calculateWeightedGrade(assignments: Assignment[]): GradeCalculat
       weightedGrade: null,
       totalWeight: 0,
       maxPossibleWeight,
+      isEqualWeight: useEqualWeight,
       breakdown,
     }
   }
 
-  const totalWeight = includedItems.reduce(
-    (sum, item) => sum + (item.assignment.weight || 0),
-    0
-  )
+  // For equal weight mode, recalculate contributions based on included items only
+  if (useEqualWeight) {
+    const allCountedItems = [...breakdown.graded, ...breakdown.pastDueZero, ...breakdown.pending]
+    const weightPerItem = allCountedItems.length > 0 ? 100 / allCountedItems.length : 0
+
+    // Recalculate contributions with correct weight
+    for (const item of breakdown.graded) {
+      item.contribution = (weightPerItem * item.effectiveGrade!) / 100
+    }
+    for (const item of breakdown.pastDueZero) {
+      item.contribution = 0
+    }
+  }
+
+  const totalWeight = useEqualWeight
+    ? (includedItems.length / (breakdown.graded.length + breakdown.pastDueZero.length + breakdown.pending.length)) * 100
+    : includedItems.reduce((sum, item) => sum + (item.assignment.weight || 0), 0)
 
   const totalContribution = includedItems.reduce(
     (sum, item) => sum + (item.contribution || 0),
@@ -121,6 +156,7 @@ export function calculateWeightedGrade(assignments: Assignment[]): GradeCalculat
     weightedGrade,
     totalWeight,
     maxPossibleWeight,
+    isEqualWeight: useEqualWeight,
     breakdown,
   }
 }
