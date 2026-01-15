@@ -656,7 +656,7 @@ export async function recordStudyActivity(
 
   // --- Update Course Streak ---
   const courseStreaks = { ...(analytics.courseStreaks || {}) }
-  let courseStreak = courseStreaks[courseId] || {
+  const courseStreak = courseStreaks[courseId] || {
     courseId,
     currentStreak: 0,
     longestStreak: 0,

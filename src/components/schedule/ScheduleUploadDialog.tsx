@@ -198,6 +198,22 @@ export function ScheduleUploadDialog({ open, onOpenChange }: ScheduleUploadDialo
     }
   }, [files])
 
+  const resetDialog = useCallback(() => {
+    setStep('upload')
+    setFiles([])
+    setSourceImages([])
+    setParsedCourses([])
+    setSelectedCourses(new Set())
+    setHoveredCourse(null)
+    setSemesterStart('')
+    setSemesterEnd('')
+    setError(null)
+    setUploadKey(k => k + 1) // Force FileUpload to remount
+    setOptimalModalWidth(null)
+    setEditingIndex(null)
+    setManualCourseLinks(new Map())
+  }, [])
+
   const handleSave = useCallback(async () => {
     try {
       let addedCount = 0
@@ -273,23 +289,7 @@ export function ScheduleUploadDialog({ open, onOpenChange }: ScheduleUploadDialo
       toast.error('Failed to save courses')
       console.error('[ScheduleUpload] Save error:', err)
     }
-  }, [selectedCourses, parsedCourses, semesterStart, semesterEnd, onOpenChange, existingCourses, getEffectiveLink])
-
-  const resetDialog = useCallback(() => {
-    setStep('upload')
-    setFiles([])
-    setSourceImages([])
-    setParsedCourses([])
-    setSelectedCourses(new Set())
-    setHoveredCourse(null)
-    setSemesterStart('')
-    setSemesterEnd('')
-    setError(null)
-    setUploadKey(k => k + 1) // Force FileUpload to remount
-    setOptimalModalWidth(null)
-    setEditingIndex(null)
-    setManualCourseLinks(new Map())
-  }, [])
+  }, [selectedCourses, parsedCourses, semesterStart, semesterEnd, onOpenChange, existingCourses, getEffectiveLink, resetDialog])
 
   const toggleCourse = useCallback((index: number) => {
     setSelectedCourses((prev) => {

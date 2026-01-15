@@ -104,7 +104,7 @@ export function FileUpload({
           if (isHeicFile(file)) {
             try {
               processedFile = await convertHeicToJpeg(file)
-            } catch (error) {
+            } catch (_error) {
               toast.error(`Failed to convert ${file.name}`)
               continue
             }

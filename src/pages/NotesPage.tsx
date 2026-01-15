@@ -130,7 +130,7 @@ export function NotesPage() {
         try {
           const converted = await convertHeicToJpeg(file)
           convertedFiles.push(converted)
-        } catch (error) {
+        } catch (_error) {
           toast.error(`Failed to convert ${file.name}`)
         }
       } else {

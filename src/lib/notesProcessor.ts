@@ -487,7 +487,7 @@ export async function exportToPdf(material: StudyMaterial): Promise<void> {
       doc.setFont('helvetica', 'normal')
 
       // Remove markdown formatting for PDF
-      let text = trimmed
+      const text = trimmed
         .replace(/\*\*(.*?)\*\*/g, '$1')
         .replace(/\*(.*?)\*/g, '$1')
         .replace(/`(.*?)`/g, '$1')

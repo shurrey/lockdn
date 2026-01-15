@@ -131,7 +131,7 @@ export function ScheduleUploadStep({
       toast.success(`Added ${selectedCourses.size} courses`)
       onScheduleUploaded()
       onNext()
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to save courses')
       setStep('review')
     }

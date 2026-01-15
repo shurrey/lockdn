@@ -537,7 +537,7 @@ export function assessComprehension(
   }
 
   let totalConfusion = 0
-  let confusionTrend: number[] = [] // track if confusion decreases over conversation
+  const confusionTrend: number[] = [] // track if confusion decreases over conversation
   const allTopics: string[] = []
 
   for (let i = 0; i < userMessages.length; i++) {

@@ -154,6 +154,16 @@ export function CoursesPage() {
     tutoringConversations?: number
   }>({})
 
+  const resetManualForm = useCallback(() => {
+    setManualCourseName('')
+    setManualCourseCode('')
+    setManualCourseColor(getNextAvailableColor(usedColors))
+    setManualCourseInstructor('')
+    setManualSchedule([])
+    setManualSemesterStart('')
+    setManualSemesterEnd('')
+  }, [usedColors])
+
   const handleManualCourseCreate = useCallback(async () => {
     if (!manualCourseName.trim() || !manualCourseCode.trim()) {
       toast.error('Please enter course name and code')
@@ -178,17 +188,7 @@ export function CoursesPage() {
       toast.error('Failed to create course')
       console.error(error)
     }
-  }, [manualCourseName, manualCourseCode, manualCourseColor, manualCourseInstructor, manualSchedule, manualSemesterStart, manualSemesterEnd])
-
-  const resetManualForm = useCallback(() => {
-    setManualCourseName('')
-    setManualCourseCode('')
-    setManualCourseColor(getNextAvailableColor(usedColors))
-    setManualCourseInstructor('')
-    setManualSchedule([])
-    setManualSemesterStart('')
-    setManualSemesterEnd('')
-  }, [usedColors])
+  }, [manualCourseName, manualCourseCode, manualCourseColor, manualCourseInstructor, manualSchedule, manualSemesterStart, manualSemesterEnd, resetManualForm])
 
   const handleOpenAddDialog = useCallback(() => {
     setManualCourseColor(getNextAvailableColor(usedColors))
@@ -277,6 +277,15 @@ export function CoursesPage() {
     setShowEditAssignmentDialog(true)
   }, [])
 
+  const resetAssignmentForm = useCallback(() => {
+    setAssignmentTitle('')
+    setAssignmentType('homework')
+    setAssignmentDueDate('')
+    setAssignmentDueTime('23:59')
+    setAssignmentWeight('')
+    setAssignmentDescription('')
+  }, [])
+
   const handleSaveAssignmentEdit = useCallback(async () => {
     if (!selectedAssignment) return
 
@@ -298,13 +307,13 @@ export function CoursesPage() {
       toast.error('Failed to update assignment')
       console.error(error)
     }
-  }, [selectedAssignment, assignmentTitle, assignmentType, assignmentDueDate, assignmentDueTime, assignmentWeight, assignmentDescription])
+  }, [selectedAssignment, assignmentTitle, assignmentType, assignmentDueDate, assignmentDueTime, assignmentWeight, assignmentDescription, resetAssignmentForm])
 
   const handleAddAssignment = useCallback((course: Course) => {
     setSelectedCourse(course)
     resetAssignmentForm()
     setShowAddAssignmentDialog(true)
-  }, [])
+  }, [resetAssignmentForm])
 
   const handleCreateAssignment = useCallback(async () => {
     if (!selectedCourse || !assignmentTitle.trim() || !assignmentDueDate) {
@@ -332,7 +341,7 @@ export function CoursesPage() {
       toast.error('Failed to create assignment')
       console.error(error)
     }
-  }, [selectedCourse, assignmentTitle, assignmentType, assignmentDueDate, assignmentDueTime, assignmentWeight, assignmentDescription])
+  }, [selectedCourse, assignmentTitle, assignmentType, assignmentDueDate, assignmentDueTime, assignmentWeight, assignmentDescription, resetAssignmentForm])
 
   const handleArchiveAssignment = useCallback(async (assignmentId: string) => {
     if (!confirm('Archive this assignment? You can restore it later from the Archive page.')) return
@@ -344,15 +353,6 @@ export function CoursesPage() {
       toast.error('Failed to archive assignment')
       console.error(error)
     }
-  }, [])
-
-  const resetAssignmentForm = useCallback(() => {
-    setAssignmentTitle('')
-    setAssignmentType('homework')
-    setAssignmentDueDate('')
-    setAssignmentDueTime('23:59')
-    setAssignmentWeight('')
-    setAssignmentDescription('')
   }, [])
 
   return (
@@ -1272,6 +1272,19 @@ function SyllabusUploadDialog({ open, onOpenChange, course, existingAssignments 
     }
   }, [course, files])
 
+  const resetDialog = useCallback(() => {
+    setStep('upload')
+    setFiles([])
+    setSourceImages([])
+    setParsedAssignments([])
+    setSelectedAssignments(new Set())
+    setHoveredAssignment(null)
+    setError(null)
+    setUploadKey(k => k + 1) // Force FileUpload to remount
+    setOptimalModalWidth(null)
+    setEditingIndex(null)
+  }, [])
+
   const handleSave = useCallback(async () => {
     if (!course) return
 
@@ -1311,20 +1324,7 @@ function SyllabusUploadDialog({ open, onOpenChange, course, existingAssignments 
       toast.error('Failed to save assignments')
       console.error(err)
     }
-  }, [course, selectedAssignments, parsedAssignments, files, onOpenChange])
-
-  const resetDialog = useCallback(() => {
-    setStep('upload')
-    setFiles([])
-    setSourceImages([])
-    setParsedAssignments([])
-    setSelectedAssignments(new Set())
-    setHoveredAssignment(null)
-    setError(null)
-    setUploadKey(k => k + 1) // Force FileUpload to remount
-    setOptimalModalWidth(null)
-    setEditingIndex(null)
-  }, [])
+  }, [course, selectedAssignments, parsedAssignments, files, onOpenChange, resetDialog])
 
   const toggleAssignment = useCallback((index: number) => {
     setSelectedAssignments((prev) => {
