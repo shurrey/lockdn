@@ -40,6 +40,7 @@ import {
   Minus,
   ArrowRight,
   Check,
+  GraduationCap,
 } from 'lucide-react'
 import { FileUpload, type UploadedFile } from '@/components/syllabus/FileUpload'
 import {
@@ -71,6 +72,7 @@ import {
 } from '@/lib/diffUtils'
 import { ScheduleUploadDialog } from '@/components/schedule'
 import { MarkCompleteDialog } from '@/components/assignments'
+import { CourseGradesModal } from '@/components/courses'
 import { SourceImageViewer, filesToSourceImages, type SourceImage } from '@/components/ui/source-image-viewer'
 import type { Course, Assignment, AssignmentType, ClassMeeting, DayOfWeek, CourseStreak } from '@/types'
 import { toast } from 'sonner'
@@ -116,6 +118,7 @@ export function CoursesPage() {
   const [showSyllabusUploadDialog, setShowSyllabusUploadDialog] = useState(false)
   const [showScheduleUploadDialog, setShowScheduleUploadDialog] = useState(false)
   const [showCompleteDialog, setShowCompleteDialog] = useState(false)
+  const [showGradesDialog, setShowGradesDialog] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null)
 
@@ -393,6 +396,10 @@ export function CoursesPage() {
               onEdit={() => handleEditCourse(course)}
               onArchive={() => handleArchiveCourse(course.id)}
               onUploadSyllabus={() => handleUploadSyllabus(course)}
+              onViewGrades={() => {
+                setSelectedCourse(course)
+                setShowGradesDialog(true)
+              }}
               onAddAssignment={() => handleAddAssignment(course)}
               onEditAssignment={(a) => handleEditAssignment(a, course)}
               onArchiveAssignment={handleArchiveAssignment}
@@ -718,6 +725,15 @@ export function CoursesPage() {
         onOpenChange={setShowCompleteDialog}
       />
 
+      {/* Course Grades Modal */}
+      {selectedCourse && (
+        <CourseGradesModal
+          course={selectedCourse}
+          open={showGradesDialog}
+          onOpenChange={setShowGradesDialog}
+        />
+      )}
+
       {/* Archive Course Dialog */}
       {archiveCourseId && (
         <ArchiveDialog
@@ -995,6 +1011,7 @@ interface CourseCardProps {
   onEdit: () => void
   onArchive: () => void
   onUploadSyllabus: () => void
+  onViewGrades: () => void
   onAddAssignment: () => void
   onEditAssignment: (assignment: Assignment) => void
   onArchiveAssignment: (id: string) => void
@@ -1007,6 +1024,7 @@ function CourseCard({
   onEdit,
   onArchive,
   onUploadSyllabus,
+  onViewGrades,
   onAddAssignment,
   onEditAssignment,
   onArchiveAssignment,
@@ -1050,6 +1068,15 @@ function CourseCard({
             )}
           </div>
           <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={onViewGrades}
+              title="View Grades"
+            >
+              <GraduationCap className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
