@@ -197,8 +197,8 @@ function buildSystemPrompt(context: TutorContext, detectedMode: TutoringMode): s
                 if (!isCorrect) {
                   materialsInfo += ` (Correct: ${Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer})`
                 }
-                if (q.feedback) {
-                  materialsInfo += `\n      Feedback: ${q.feedback.substring(0, 100)}${q.feedback.length > 100 ? '...' : ''}`
+                if (q.explanation) {
+                  materialsInfo += `\n      Explanation: ${q.explanation.substring(0, 100)}${q.explanation.length > 100 ? '...' : ''}`
                 }
               }
               if (exam.questions.length > 10) {
