@@ -119,11 +119,13 @@ export interface SyncState {
 
 // Signaling server message types
 export interface SignalMessage {
-  type: 'signal' | 'join' | 'leave' | 'ping' | 'peers' | 'pong'
+  type: 'signal' | 'join' | 'leave' | 'ping' | 'peers' | 'pong' | 'hello' | 'welcome'
   from?: string
   to?: string
   peers?: Array<{ id: string; joinedAt: number }>
   payload?: unknown
+  deviceId?: string  // For hello message
+  yourId?: string    // For welcome message
 }
 
 // WebRTC configuration

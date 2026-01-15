@@ -7,74 +7,66 @@ import type * as Party from 'partykit/server'
  * Each "room" represents a sync group identified by a pairing code.
  *
  * Protocol:
- * - Clients send JSON messages with { type, payload }
- * - Server broadcasts to all other clients in the room
- * - Special types: 'join', 'leave', 'signal'
+ * - Client connects, sends { type: 'hello', deviceId: '...' } first
+ * - Server responds with { type: 'welcome', yourId: '...' }
+ * - Then normal signaling: 'join', 'leave', 'signal', 'ping'
  */
 
 interface SignalMessage {
-  type: 'signal' | 'join' | 'leave' | 'ping'
-  from: string
+  type: 'signal' | 'join' | 'leave' | 'ping' | 'hello'
+  from?: string
   to?: string // Optional: direct message to specific peer
   payload?: unknown
+  deviceId?: string
 }
 
 interface PeerInfo {
   id: string
+  deviceId: string | null
   joinedAt: number
+  announced: boolean
 }
 
 export default class SignalingServer implements Party.Server {
   // Track connected peers with their info
+  // Key is connection ID, value has both connection ID and deviceId
   peers: Map<string, PeerInfo> = new Map()
 
   constructor(readonly room: Party.Room) {}
 
-  onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-    // Generate or use provided peer ID
-    const peerId = ctx.request.headers.get('x-peer-id') || conn.id
-
-    // Store peer info
+  onConnect(conn: Party.Connection) {
+    // Store peer with connection ID, wait for hello message to get deviceId
     this.peers.set(conn.id, {
-      id: peerId,
+      id: conn.id,
+      deviceId: null,
       joinedAt: Date.now(),
+      announced: false,
     })
 
-    // Send current peer list to the new connection
-    const peerList = Array.from(this.peers.values()).filter(
-      (p) => p.id !== peerId
-    )
+    // Send welcome with their assigned ID (use this if they don't send hello)
     conn.send(
       JSON.stringify({
-        type: 'peers',
-        peers: peerList,
+        type: 'welcome',
+        yourId: conn.id,
       })
-    )
-
-    // Notify other peers about the new connection
-    this.broadcast(
-      {
-        type: 'join',
-        from: peerId,
-        payload: { joinedAt: Date.now() },
-      },
-      conn.id
     )
   }
 
   onClose(conn: Party.Connection) {
     const peer = this.peers.get(conn.id)
-    if (peer) {
+    if (peer && peer.announced) {
+      // Use deviceId if available, otherwise connection ID
+      const peerId = peer.deviceId || peer.id
       // Notify other peers about the disconnection
       this.broadcast(
         {
           type: 'leave',
-          from: peer.id,
+          from: peerId,
         },
         conn.id
       )
-      this.peers.delete(conn.id)
     }
+    this.peers.delete(conn.id)
   }
 
   onMessage(message: string, sender: Party.Connection) {
@@ -90,16 +82,55 @@ export default class SignalingServer implements Party.Server {
         return
       }
 
+      // Handle hello message - client announcing its deviceId
+      if (data.type === 'hello' && data.deviceId) {
+        peer.deviceId = data.deviceId
+        peer.announced = true
+
+        // Now send peer list and announce to others
+        const peerId = peer.deviceId
+
+        // Send current peer list to this connection
+        const peerList = Array.from(this.peers.values())
+          .filter((p) => p.id !== sender.id && p.announced)
+          .map((p) => ({
+            id: p.deviceId || p.id,
+            joinedAt: p.joinedAt,
+          }))
+
+        sender.send(
+          JSON.stringify({
+            type: 'peers',
+            peers: peerList,
+          })
+        )
+
+        // Notify other peers about this new connection
+        this.broadcast(
+          {
+            type: 'join',
+            from: peerId,
+            payload: { joinedAt: peer.joinedAt },
+          },
+          sender.id
+        )
+        return
+      }
+
+      // Use deviceId if available, otherwise connection ID
+      const senderId = peer.deviceId || peer.id
+
       // Add sender info
       const outgoing = {
         ...data,
-        from: peer.id,
+        from: senderId,
       }
 
       // If message has a specific target, send only to that peer
       if (data.to) {
         for (const [connId, peerInfo] of this.peers) {
-          if (peerInfo.id === data.to) {
+          const targetId = peerInfo.deviceId || peerInfo.id
+          if (targetId === data.to) {
             const conn = this.room.getConnection(connId)
             if (conn) {
               conn.send(JSON.stringify(outgoing))
@@ -116,10 +147,10 @@ export default class SignalingServer implements Party.Server {
     }
   }
 
-  private broadcast(message: SignalMessage, excludeConnId?: string) {
+  private broadcast(message: Partial<SignalMessage>, excludeConnId?: string) {
     const json = JSON.stringify(message)
-    for (const [connId] of this.peers) {
-      if (connId !== excludeConnId) {
+    for (const [connId, peer] of this.peers) {
+      if (connId !== excludeConnId && peer.announced) {
         const conn = this.room.getConnection(connId)
         if (conn) {
           conn.send(json)

@@ -70,7 +70,11 @@ class SyncProvider {
         this.ws = new WebSocket(url)
 
         this.ws.onopen = () => {
-          console.log('[Sync] WebSocket connected')
+          console.log('[Sync] WebSocket connected, sending hello with deviceId')
+          // Send hello message with our deviceId so server uses consistent IDs
+          const deviceId = store.deviceId
+          console.log('[Sync] Our deviceId:', deviceId)
+          this.sendSignal({ type: 'hello', deviceId } as Partial<SignalMessage>)
           store.setStatus('connected')
           this.startPing()
           resolve()
@@ -212,6 +216,11 @@ class SyncProvider {
 
         case 'pong':
           // Keepalive response, ignore
+          break
+
+        case 'welcome':
+          // Server acknowledges our connection with our ID
+          console.log('[Sync] Server welcome, assigned ID:', message.yourId)
           break
       }
     } catch {
