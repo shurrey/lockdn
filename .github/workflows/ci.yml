@@ -125,4 +125,7 @@ jobs:
         run: cd signaling && npm install
 
       - name: Deploy to PartyKit
-        run: cd signaling && npx partykit deploy --token ${{ secrets.PARTYKIT_TOKEN }}
+        run: cd signaling && npx partykit deploy
+        env:
+          PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}
+          PARTYKIT_LOGIN: ${{ secrets.PARTYKIT_LOGIN }}
