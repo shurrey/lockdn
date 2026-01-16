@@ -437,7 +437,18 @@ When working on Lockdn, refer to:
 3. **Style Guide**: `docs/STYLE_GUIDE.md`
 4. **Database Schema**: `src/db/index.ts`
 5. **Type Definitions**: `src/types/index.ts`
-6. **Existing Patterns**: Similar files in the codebase
+6. **Sample Data**: `dev/sample-data.json` — realistic test data for development
+7. **Existing Patterns**: Similar files in the codebase
+
+### Sample Data for Testing
+
+The `dev/sample-data.json` file contains realistic test data that can be imported via **Settings → Data → Import**. Use this to:
+
+- Test features with a populated database
+- Verify UI with realistic data volumes
+- Debug issues without manual data entry
+
+The sample data includes 4 courses, 15 assignments, notes, study materials, study sessions, and analytics data.
 
 ---
 
