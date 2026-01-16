@@ -1,0 +1,599 @@
+{
+  "courses": [
+    {
+      "id": "course-psych101",
+      "name": "Introduction to Psychology",
+      "code": "PSY 101",
+      "color": "#3B82F6",
+      "instructor": "Dr. Sarah Chen",
+      "schedule": [
+        {
+          "days": ["monday", "wednesday", "friday"],
+          "startTime": "10:00",
+          "endTime": "10:50",
+          "location": "Psychology Building 201"
+        }
+      ],
+      "semesterStart": "2025-01-13T00:00:00.000Z",
+      "semesterEnd": "2025-05-09T00:00:00.000Z",
+      "createdAt": "2025-01-10T14:30:00.000Z",
+      "updatedAt": "2025-01-10T14:30:00.000Z"
+    },
+    {
+      "id": "course-calc2",
+      "name": "Calculus II",
+      "code": "MATH 152",
+      "color": "#10B981",
+      "instructor": "Prof. James Morrison",
+      "schedule": [
+        {
+          "days": ["tuesday", "thursday"],
+          "startTime": "09:00",
+          "endTime": "10:15",
+          "location": "Mathematics Hall 105"
+        },
+        {
+          "days": ["friday"],
+          "startTime": "14:00",
+          "endTime": "14:50",
+          "location": "Mathematics Hall 105"
+        }
+      ],
+      "semesterStart": "2025-01-13T00:00:00.000Z",
+      "semesterEnd": "2025-05-09T00:00:00.000Z",
+      "createdAt": "2025-01-10T14:35:00.000Z",
+      "updatedAt": "2025-01-10T14:35:00.000Z"
+    },
+    {
+      "id": "course-compsci",
+      "name": "Data Structures",
+      "code": "CS 201",
+      "color": "#8B5CF6",
+      "instructor": "Dr. Lisa Park",
+      "schedule": [
+        {
+          "days": ["monday", "wednesday"],
+          "startTime": "14:00",
+          "endTime": "15:15",
+          "location": "Engineering Building 302"
+        }
+      ],
+      "semesterStart": "2025-01-13T00:00:00.000Z",
+      "semesterEnd": "2025-05-09T00:00:00.000Z",
+      "createdAt": "2025-01-10T14:40:00.000Z",
+      "updatedAt": "2025-01-10T14:40:00.000Z"
+    },
+    {
+      "id": "course-writing",
+      "name": "Academic Writing",
+      "code": "ENG 102",
+      "color": "#F59E0B",
+      "instructor": "Prof. Michael Torres",
+      "schedule": [
+        {
+          "days": ["tuesday", "thursday"],
+          "startTime": "11:00",
+          "endTime": "12:15",
+          "location": "Humanities Building 118"
+        }
+      ],
+      "semesterStart": "2025-01-13T00:00:00.000Z",
+      "semesterEnd": "2025-05-09T00:00:00.000Z",
+      "createdAt": "2025-01-10T14:45:00.000Z",
+      "updatedAt": "2025-01-10T14:45:00.000Z"
+    }
+  ],
+  "assignments": [
+    {
+      "id": "assign-psych-midterm",
+      "courseId": "course-psych101",
+      "title": "Midterm Exam",
+      "type": "exam",
+      "dueDate": "2025-03-07T15:00:00.000Z",
+      "weight": 25,
+      "description": "Chapters 1-6. Multiple choice and short answer.",
+      "confidenceScore": 0.95,
+      "status": "pending",
+      "estimatedEffort": 180,
+      "createdAt": "2025-01-10T15:00:00.000Z",
+      "updatedAt": "2025-01-10T15:00:00.000Z"
+    },
+    {
+      "id": "assign-psych-paper",
+      "courseId": "course-psych101",
+      "title": "Research Paper: Cognitive Development",
+      "type": "paper",
+      "dueDate": "2025-04-11T23:59:00.000Z",
+      "weight": 20,
+      "description": "8-10 pages on a topic in cognitive development. APA format required.",
+      "confidenceScore": 0.92,
+      "status": "pending",
+      "estimatedEffort": 480,
+      "createdAt": "2025-01-10T15:05:00.000Z",
+      "updatedAt": "2025-01-10T15:05:00.000Z"
+    },
+    {
+      "id": "assign-psych-hw1",
+      "courseId": "course-psych101",
+      "title": "Chapter 1-2 Review Questions",
+      "type": "homework",
+      "dueDate": "2025-01-24T23:59:00.000Z",
+      "weight": 5,
+      "confidenceScore": 0.88,
+      "status": "completed",
+      "completedAt": "2025-01-23T20:30:00.000Z",
+      "grade": 92,
+      "createdAt": "2025-01-10T15:10:00.000Z",
+      "updatedAt": "2025-01-23T20:30:00.000Z"
+    },
+    {
+      "id": "assign-psych-hw2",
+      "courseId": "course-psych101",
+      "title": "Chapter 3-4 Review Questions",
+      "type": "homework",
+      "dueDate": "2025-02-07T23:59:00.000Z",
+      "weight": 5,
+      "confidenceScore": 0.88,
+      "status": "completed",
+      "completedAt": "2025-02-06T18:45:00.000Z",
+      "grade": 88,
+      "createdAt": "2025-01-10T15:15:00.000Z",
+      "updatedAt": "2025-02-06T18:45:00.000Z"
+    },
+    {
+      "id": "assign-calc-exam1",
+      "courseId": "course-calc2",
+      "title": "Exam 1: Integration Techniques",
+      "type": "exam",
+      "dueDate": "2025-02-14T10:15:00.000Z",
+      "weight": 20,
+      "description": "Covers u-substitution, integration by parts, and trigonometric integrals.",
+      "confidenceScore": 0.97,
+      "status": "completed",
+      "completedAt": "2025-02-14T10:15:00.000Z",
+      "grade": 85,
+      "createdAt": "2025-01-10T15:20:00.000Z",
+      "updatedAt": "2025-02-14T10:15:00.000Z"
+    },
+    {
+      "id": "assign-calc-hw1",
+      "courseId": "course-calc2",
+      "title": "Homework Set 1",
+      "type": "homework",
+      "dueDate": "2025-01-21T09:00:00.000Z",
+      "weight": 3,
+      "confidenceScore": 0.85,
+      "status": "completed",
+      "completedAt": "2025-01-20T22:00:00.000Z",
+      "grade": 95,
+      "createdAt": "2025-01-10T15:25:00.000Z",
+      "updatedAt": "2025-01-20T22:00:00.000Z"
+    },
+    {
+      "id": "assign-calc-hw2",
+      "courseId": "course-calc2",
+      "title": "Homework Set 2",
+      "type": "homework",
+      "dueDate": "2025-01-28T09:00:00.000Z",
+      "weight": 3,
+      "confidenceScore": 0.85,
+      "status": "completed",
+      "completedAt": "2025-01-27T21:30:00.000Z",
+      "grade": 90,
+      "createdAt": "2025-01-10T15:30:00.000Z",
+      "updatedAt": "2025-01-27T21:30:00.000Z"
+    },
+    {
+      "id": "assign-calc-hw3",
+      "courseId": "course-calc2",
+      "title": "Homework Set 3",
+      "type": "homework",
+      "dueDate": "2025-02-04T09:00:00.000Z",
+      "weight": 3,
+      "confidenceScore": 0.85,
+      "status": "completed",
+      "completedAt": "2025-02-03T23:45:00.000Z",
+      "grade": 78,
+      "wasLate": true,
+      "createdAt": "2025-01-10T15:35:00.000Z",
+      "updatedAt": "2025-02-03T23:45:00.000Z"
+    },
+    {
+      "id": "assign-calc-exam2",
+      "courseId": "course-calc2",
+      "title": "Exam 2: Series and Sequences",
+      "type": "exam",
+      "dueDate": "2025-03-21T10:15:00.000Z",
+      "weight": 20,
+      "description": "Convergence tests, Taylor series, power series.",
+      "confidenceScore": 0.97,
+      "status": "pending",
+      "estimatedEffort": 240,
+      "createdAt": "2025-01-10T15:40:00.000Z",
+      "updatedAt": "2025-01-10T15:40:00.000Z"
+    },
+    {
+      "id": "assign-cs-project1",
+      "courseId": "course-compsci",
+      "title": "Project 1: Linked List Implementation",
+      "type": "project",
+      "dueDate": "2025-02-21T23:59:00.000Z",
+      "weight": 15,
+      "description": "Implement a doubly linked list with all standard operations. Include unit tests.",
+      "confidenceScore": 0.94,
+      "status": "completed",
+      "completedAt": "2025-02-20T22:15:00.000Z",
+      "grade": 97,
+      "createdAt": "2025-01-10T15:45:00.000Z",
+      "updatedAt": "2025-02-20T22:15:00.000Z"
+    },
+    {
+      "id": "assign-cs-project2",
+      "courseId": "course-compsci",
+      "title": "Project 2: Binary Search Tree",
+      "type": "project",
+      "dueDate": "2025-03-28T23:59:00.000Z",
+      "weight": 15,
+      "description": "Implement a BST with insertion, deletion, and traversal methods.",
+      "confidenceScore": 0.94,
+      "status": "pending",
+      "estimatedEffort": 360,
+      "createdAt": "2025-01-10T15:50:00.000Z",
+      "updatedAt": "2025-01-10T15:50:00.000Z"
+    },
+    {
+      "id": "assign-cs-quiz1",
+      "courseId": "course-compsci",
+      "title": "Quiz 1: Arrays and Complexity",
+      "type": "quiz",
+      "dueDate": "2025-01-31T15:15:00.000Z",
+      "weight": 5,
+      "confidenceScore": 0.90,
+      "status": "completed",
+      "completedAt": "2025-01-31T15:15:00.000Z",
+      "grade": 100,
+      "createdAt": "2025-01-10T15:55:00.000Z",
+      "updatedAt": "2025-01-31T15:15:00.000Z"
+    },
+    {
+      "id": "assign-writing-essay1",
+      "courseId": "course-writing",
+      "title": "Argumentative Essay Draft",
+      "type": "paper",
+      "dueDate": "2025-02-06T12:15:00.000Z",
+      "weight": 10,
+      "description": "First draft of 5-page argumentative essay. Topic of your choice.",
+      "confidenceScore": 0.91,
+      "status": "completed",
+      "completedAt": "2025-02-05T23:30:00.000Z",
+      "grade": 82,
+      "createdAt": "2025-01-10T16:00:00.000Z",
+      "updatedAt": "2025-02-05T23:30:00.000Z"
+    },
+    {
+      "id": "assign-writing-essay1-final",
+      "courseId": "course-writing",
+      "title": "Argumentative Essay Final",
+      "type": "paper",
+      "dueDate": "2025-02-27T12:15:00.000Z",
+      "weight": 15,
+      "description": "Revised final draft incorporating peer and instructor feedback.",
+      "confidenceScore": 0.91,
+      "status": "pending",
+      "estimatedEffort": 180,
+      "createdAt": "2025-01-10T16:05:00.000Z",
+      "updatedAt": "2025-01-10T16:05:00.000Z"
+    },
+    {
+      "id": "assign-writing-research",
+      "courseId": "course-writing",
+      "title": "Research Paper",
+      "type": "paper",
+      "dueDate": "2025-04-24T12:15:00.000Z",
+      "weight": 25,
+      "description": "10-12 page research paper with minimum 8 scholarly sources.",
+      "confidenceScore": 0.93,
+      "status": "pending",
+      "estimatedEffort": 600,
+      "createdAt": "2025-01-10T16:10:00.000Z",
+      "updatedAt": "2025-01-10T16:10:00.000Z"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-psych-ch1",
+      "courseId": "course-psych101",
+      "title": "Chapter 1: History of Psychology",
+      "images": [],
+      "extractedText": "Psychology emerged as a scientific discipline in the late 19th century. Wilhelm Wundt established the first psychology laboratory in 1879. Key schools of thought include structuralism, functionalism, behaviorism, and cognitive psychology.",
+      "aiSummary": "Overview of psychology's history from Wundt's first lab to modern cognitive approaches.",
+      "topics": ["history", "structuralism", "functionalism", "behaviorism"],
+      "createdAt": "2025-01-15T10:30:00.000Z",
+      "updatedAt": "2025-01-15T10:30:00.000Z"
+    },
+    {
+      "id": "note-psych-ch2",
+      "courseId": "course-psych101",
+      "title": "Chapter 2: Research Methods",
+      "images": [],
+      "extractedText": "Scientific method in psychology: observation, hypothesis, experiment, analysis. Key concepts: independent and dependent variables, control groups, random assignment, correlation vs causation.",
+      "aiSummary": "Research methodology fundamentals including experimental design and statistical concepts.",
+      "topics": ["research methods", "variables", "experiments", "correlation"],
+      "createdAt": "2025-01-17T11:15:00.000Z",
+      "updatedAt": "2025-01-17T11:15:00.000Z"
+    },
+    {
+      "id": "note-calc-integration",
+      "courseId": "course-calc2",
+      "title": "Integration by Parts",
+      "images": [],
+      "extractedText": "Integration by parts formula: ∫u dv = uv - ∫v du. LIATE rule for choosing u: Logarithmic, Inverse trig, Algebraic, Trigonometric, Exponential. Practice: ∫x·e^x dx, ∫x·sin(x) dx",
+      "aiSummary": "Integration by parts technique with LIATE selection rule and examples.",
+      "topics": ["integration", "calculus", "techniques"],
+      "createdAt": "2025-01-20T14:00:00.000Z",
+      "updatedAt": "2025-01-20T14:00:00.000Z"
+    },
+    {
+      "id": "note-cs-complexity",
+      "courseId": "course-compsci",
+      "title": "Big O Notation",
+      "images": [],
+      "extractedText": "Big O describes worst-case time complexity. Common complexities: O(1) constant, O(log n) logarithmic, O(n) linear, O(n log n) linearithmic, O(n²) quadratic, O(2^n) exponential. Space complexity also matters.",
+      "aiSummary": "Time and space complexity analysis using Big O notation.",
+      "topics": ["algorithms", "complexity", "big o", "efficiency"],
+      "createdAt": "2025-01-22T14:30:00.000Z",
+      "updatedAt": "2025-01-22T14:30:00.000Z"
+    }
+  ],
+  "studyMaterials": [
+    {
+      "id": "material-psych-guide",
+      "courseId": "course-psych101",
+      "type": "guide",
+      "title": "Psychology Midterm Study Guide",
+      "content": "# Psychology Midterm Study Guide\n\n## Chapter 1: History\n- Wundt's laboratory (1879)\n- Schools of thought: structuralism, functionalism, behaviorism\n- Modern perspectives: cognitive, biological, social\n\n## Chapter 2: Research Methods\n- Scientific method steps\n- Variable types\n- Experimental vs correlational studies\n\n## Key Terms to Know\n- Independent variable\n- Dependent variable\n- Control group\n- Random assignment",
+      "sourceNoteIds": ["note-psych-ch1", "note-psych-ch2"],
+      "createdAt": "2025-02-01T16:00:00.000Z",
+      "updatedAt": "2025-02-01T16:00:00.000Z"
+    },
+    {
+      "id": "material-psych-exam",
+      "courseId": "course-psych101",
+      "type": "practice_exam",
+      "title": "Psychology Practice Exam",
+      "content": "Practice questions for PSY 101 midterm",
+      "sourceNoteIds": ["note-psych-ch1", "note-psych-ch2"],
+      "questions": [
+        {
+          "id": "q1",
+          "type": "multiple_choice",
+          "bloomLevel": "knowledge",
+          "question": "Who established the first psychology laboratory?",
+          "options": ["Sigmund Freud", "Wilhelm Wundt", "William James", "B.F. Skinner"],
+          "correctAnswer": "Wilhelm Wundt",
+          "explanation": "Wilhelm Wundt established the first psychology laboratory in Leipzig, Germany in 1879."
+        },
+        {
+          "id": "q2",
+          "type": "multiple_choice",
+          "bloomLevel": "comprehension",
+          "question": "What is the key difference between correlation and causation?",
+          "options": [
+            "Correlation is stronger than causation",
+            "Causation implies one variable directly affects another, while correlation only shows a relationship",
+            "They mean the same thing",
+            "Correlation can only be positive"
+          ],
+          "correctAnswer": "Causation implies one variable directly affects another, while correlation only shows a relationship",
+          "explanation": "Correlation shows two variables are related, but doesn't prove one causes the other."
+        },
+        {
+          "id": "q3",
+          "type": "fill_in_blank",
+          "bloomLevel": "knowledge",
+          "question": "The variable that is manipulated by the researcher is called the _____ variable.",
+          "correctAnswer": "independent",
+          "explanation": "The independent variable is controlled/manipulated by the researcher to observe its effects."
+        }
+      ],
+      "createdAt": "2025-02-02T10:00:00.000Z",
+      "updatedAt": "2025-02-02T10:00:00.000Z"
+    }
+  ],
+  "studySessions": [
+    {
+      "id": "session-1",
+      "courseId": "course-psych101",
+      "plannedStart": "2025-01-20T19:00:00.000Z",
+      "plannedDuration": 60,
+      "actualStart": "2025-01-20T19:05:00.000Z",
+      "actualDuration": 55,
+      "activityType": "Reading",
+      "notes": "Finished chapter 1 and 2 review",
+      "completed": true,
+      "createdAt": "2025-01-20T19:00:00.000Z",
+      "updatedAt": "2025-01-20T20:00:00.000Z"
+    },
+    {
+      "id": "session-2",
+      "courseId": "course-calc2",
+      "plannedStart": "2025-01-21T20:00:00.000Z",
+      "plannedDuration": 90,
+      "actualStart": "2025-01-21T20:00:00.000Z",
+      "actualDuration": 85,
+      "activityType": "Problem Sets",
+      "notes": "Completed homework set 1",
+      "completed": true,
+      "createdAt": "2025-01-21T20:00:00.000Z",
+      "updatedAt": "2025-01-21T21:30:00.000Z"
+    },
+    {
+      "id": "session-3",
+      "courseId": "course-compsci",
+      "plannedStart": "2025-01-22T14:00:00.000Z",
+      "plannedDuration": 120,
+      "actualStart": "2025-01-22T14:10:00.000Z",
+      "actualDuration": 110,
+      "activityType": "Coding",
+      "notes": "Started linked list implementation",
+      "completed": true,
+      "createdAt": "2025-01-22T14:00:00.000Z",
+      "updatedAt": "2025-01-22T16:00:00.000Z"
+    },
+    {
+      "id": "session-4",
+      "courseId": "course-writing",
+      "plannedStart": "2025-01-23T10:00:00.000Z",
+      "plannedDuration": 60,
+      "actualStart": "2025-01-23T10:00:00.000Z",
+      "actualDuration": 65,
+      "activityType": "Writing",
+      "notes": "Brainstormed essay topics",
+      "completed": true,
+      "createdAt": "2025-01-23T10:00:00.000Z",
+      "updatedAt": "2025-01-23T11:05:00.000Z"
+    },
+    {
+      "id": "session-5",
+      "courseId": "course-psych101",
+      "plannedStart": "2025-01-25T15:00:00.000Z",
+      "plannedDuration": 45,
+      "actualStart": "2025-01-25T15:00:00.000Z",
+      "actualDuration": 45,
+      "activityType": "Review",
+      "notes": "Reviewed chapters for homework",
+      "completed": true,
+      "createdAt": "2025-01-25T15:00:00.000Z",
+      "updatedAt": "2025-01-25T15:45:00.000Z"
+    }
+  ],
+  "analytics": {
+    "id": "user_analytics",
+    "currentStreak": 5,
+    "longestStreak": 12,
+    "longestStreakDate": "2025-01-15",
+    "lastStudyDate": "2025-02-10",
+    "totalStudyMinutes": 1840,
+    "totalSessionsCompleted": 28,
+    "totalTasksCompleted": 9,
+    "milestones": [
+      {
+        "id": "milestone-1",
+        "type": "streak",
+        "achievedAt": "2025-01-20T00:00:00.000Z",
+        "description": "First 7-day study streak!"
+      },
+      {
+        "id": "milestone-2",
+        "type": "sessions",
+        "achievedAt": "2025-01-28T00:00:00.000Z",
+        "description": "Completed 20 study sessions"
+      }
+    ],
+    "courseStreaks": {
+      "course-psych101": {
+        "courseId": "course-psych101",
+        "currentStreak": 3,
+        "longestStreak": 5,
+        "lastActivityDate": "2025-02-10"
+      },
+      "course-calc2": {
+        "courseId": "course-calc2",
+        "currentStreak": 2,
+        "longestStreak": 4,
+        "lastActivityDate": "2025-02-09"
+      },
+      "course-compsci": {
+        "courseId": "course-compsci",
+        "currentStreak": 4,
+        "longestStreak": 6,
+        "lastActivityDate": "2025-02-10"
+      },
+      "course-writing": {
+        "courseId": "course-writing",
+        "currentStreak": 1,
+        "longestStreak": 3,
+        "lastActivityDate": "2025-02-08"
+      }
+    },
+    "streakRecords": [],
+    "coursePerformance": {
+      "course-psych101": {
+        "courseId": "course-psych101",
+        "assignmentCount": 2,
+        "averageGrade": 90,
+        "trend": "stable",
+        "lastGradeDate": "2025-02-06",
+        "onTimeRate": 100,
+        "completedCount": 2,
+        "lateCount": 0
+      },
+      "course-calc2": {
+        "courseId": "course-calc2",
+        "assignmentCount": 4,
+        "averageGrade": 87,
+        "trend": "stable",
+        "lastGradeDate": "2025-02-14",
+        "onTimeRate": 75,
+        "completedCount": 4,
+        "lateCount": 1
+      },
+      "course-compsci": {
+        "courseId": "course-compsci",
+        "assignmentCount": 2,
+        "averageGrade": 98.5,
+        "trend": "improving",
+        "lastGradeDate": "2025-02-20",
+        "onTimeRate": 100,
+        "completedCount": 2,
+        "lateCount": 0
+      },
+      "course-writing": {
+        "courseId": "course-writing",
+        "assignmentCount": 1,
+        "averageGrade": 82,
+        "trend": "unknown",
+        "lastGradeDate": "2025-02-05",
+        "onTimeRate": 100,
+        "completedCount": 1,
+        "lateCount": 0
+      }
+    },
+    "updatedAt": "2025-02-10T22:00:00.000Z"
+  },
+  "preferences": {
+    "id": "user_preferences",
+    "onboardingCompleted": true,
+    "productivityHours": [
+      { "dayOfWeek": 1, "startHour": 9, "endHour": 12, "energyLevel": "high" },
+      { "dayOfWeek": 1, "startHour": 14, "endHour": 17, "energyLevel": "medium" },
+      { "dayOfWeek": 2, "startHour": 9, "endHour": 12, "energyLevel": "high" },
+      { "dayOfWeek": 2, "startHour": 14, "endHour": 17, "energyLevel": "medium" },
+      { "dayOfWeek": 3, "startHour": 9, "endHour": 12, "energyLevel": "high" },
+      { "dayOfWeek": 3, "startHour": 14, "endHour": 17, "energyLevel": "medium" },
+      { "dayOfWeek": 4, "startHour": 9, "endHour": 12, "energyLevel": "high" },
+      { "dayOfWeek": 4, "startHour": 14, "endHour": 17, "energyLevel": "medium" },
+      { "dayOfWeek": 5, "startHour": 9, "endHour": 12, "energyLevel": "high" },
+      { "dayOfWeek": 6, "startHour": 10, "endHour": 14, "energyLevel": "medium" },
+      { "dayOfWeek": 0, "startHour": 14, "endHour": 18, "energyLevel": "low" }
+    ],
+    "breakPreferences": {
+      "shortBreakDuration": 10,
+      "longBreakDuration": 30,
+      "sessionsBeforeLongBreak": 4
+    },
+    "aiProvider": "anthropic",
+    "personaSettings": {
+      "name": "Wise Mentor",
+      "tone": "balanced",
+      "proactiveCheckIns": true
+    },
+    "theme": "system",
+    "updatedAt": "2025-01-10T14:00:00.000Z"
+  },
+  "_meta": {
+    "version": "1.0.0",
+    "exportedAt": "2025-02-11T00:00:00.000Z",
+    "description": "Sample data for Lockdn development and testing. Contains 4 courses, 15 assignments, 4 notes, 2 study materials, and 5 study sessions."
+  }
+}
