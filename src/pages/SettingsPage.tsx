@@ -133,7 +133,7 @@ export function SettingsPage() {
 
       {/* Help Panel */}
       <HelpPanel
-        docPath="user/troubleshooting"
+        docPath="user/features/settings"
         open={showHelp}
         onOpenChange={setShowHelp}
         title="Settings Help"

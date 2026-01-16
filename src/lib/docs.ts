@@ -13,6 +13,7 @@ export const PAGE_DOCS: Record<string, string> = {
   '/analytics': 'user/features/analytics',
   '/calendar': 'user/features/calendar',
   '/settings': 'user/features/settings',
+  '/archive': 'user/features/archive',
 }
 
 // Get the doc path for a given route

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Archive, RotateCcw, Trash2, Filter, Calendar, BookOpen, FileText, ClipboardList, MessageSquare, GraduationCap } from 'lucide-react'
+import { Archive, RotateCcw, Trash2, Filter, Calendar, BookOpen, FileText, ClipboardList, MessageSquare, GraduationCap, HelpCircle } from 'lucide-react'
 import { Mascot } from '@/components/Mascot'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -31,6 +31,7 @@ import {
   type ArchivedItem,
 } from '@/db/hooks'
 import { PermanentDeleteDialog } from '@/components/ui/archive-dialog'
+import { HelpPanel } from '@/components/HelpPanel'
 import { toast } from 'sonner'
 
 const TYPE_ICONS = {
@@ -61,6 +62,7 @@ export function ArchivePage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<ArchivedItem | null>(null)
   const [isProcessing, setIsProcessing] = useState<string | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   // Group items by type
   const groupedItems = useMemo(() => {
@@ -204,6 +206,9 @@ export function ArchivePage() {
               <SelectItem value="tutoringConversation">Conversations</SelectItem>
             </SelectContent>
           </Select>
+          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+            <HelpCircle className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 
@@ -340,6 +345,14 @@ export function ArchivePage() {
         itemName={selectedItem?.title ?? ''}
         onConfirm={handlePermanentDelete}
         isLoading={isProcessing !== null}
+      />
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/features/archive"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="Archive Help"
       />
     </div>
   )
