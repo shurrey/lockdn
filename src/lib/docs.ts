@@ -25,7 +25,7 @@ const docCache = new Map<string, { content: string; timestamp: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
 // GitHub raw content URL base
-const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/anthropics/student-course-tools/main/docs'
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/shurrey/lockdn/main/docs'
 
 /**
  * Fetch markdown content from GitHub
@@ -65,5 +65,5 @@ Please check the [full documentation on GitHub](https://github.com/anthropics/st
  * Get the GitHub URL for a doc path
  */
 export function getGitHubDocUrl(docPath: string): string {
-  return `https://github.com/anthropics/student-course-tools/blob/main/docs/${docPath}.md`
+  return `https://github.com/shurrey/lockdn/blob/main/docs/${docPath}.md`
 }

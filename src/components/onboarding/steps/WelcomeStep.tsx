@@ -231,7 +231,7 @@ export function WelcomeStep({ onNext, onImportComplete }: WelcomeStepProps) {
             Want to learn more about Lockdn features?
           </p>
           <a
-            href="https://github.com/anthropics/student-course-tools/blob/main/docs/user/getting-started.md"
+            href="https://github.com/shurrey/lockdn/blob/main/docs/user/getting-started.md"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-primary hover:underline flex items-center gap-1"
