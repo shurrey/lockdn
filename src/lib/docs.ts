@@ -24,10 +24,11 @@ export function getDocPathForRoute(route: string): string {
 const docCache = new Map<string, { content: string; timestamp: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
+// GitHub raw content URL base
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/anthropics/student-course-tools/main/docs'
+
 /**
- * Fetch markdown content from the docs directory
- * In development, this fetches from the local docs folder
- * In production, this would fetch from GitHub raw content
+ * Fetch markdown content from GitHub
  */
 export async function getDocContent(docPath: string): Promise<string> {
   // Check cache first
@@ -37,9 +38,8 @@ export async function getDocContent(docPath: string): Promise<string> {
   }
 
   try {
-    // In development, fetch from local files via public folder
-    // Docs are served from /docs/ path
-    const response = await fetch(`/docs/${docPath}.md`)
+    // Fetch from GitHub raw content
+    const response = await fetch(`${GITHUB_RAW_BASE}/${docPath}.md`)
 
     if (!response.ok) {
       throw new Error(`Failed to fetch doc: ${response.status}`)
