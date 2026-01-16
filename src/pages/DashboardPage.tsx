@@ -474,10 +474,10 @@ export function DashboardPage() {
 
       {/* Help Panel */}
       <HelpPanel
-        docPath="user/getting-started"
+        docPath="user/features/dashboard"
         open={showHelp}
         onOpenChange={setShowHelp}
-        title="Getting Started"
+        title="Dashboard Help"
       />
     </div>
   )

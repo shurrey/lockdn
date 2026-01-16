@@ -4,7 +4,7 @@
 
 // Map page routes to their corresponding doc paths
 export const PAGE_DOCS: Record<string, string> = {
-  '/': 'user/getting-started',
+  '/': 'user/features/dashboard',
   '/courses': 'user/features/courses',
   '/study': 'user/features/study-planning',
   '/tutor': 'user/features/tutor',
