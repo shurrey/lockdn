@@ -152,10 +152,12 @@ Restore from a backup or transfer from another device:
 
 1. Go to **Settings** → **Data** → **Import**
 2. Select your backup file
-3. Review the import summary
-4. Click **Import**
+3. Choose an import mode:
+   - **Merge with existing data** — Adds new items and updates existing ones. Your current data stays intact.
+   - **Replace all data** — Deletes all existing data and replaces it with the imported file.
+4. Wait for the import to complete
 
-> **Warning:** Importing data may overwrite existing items if they share the same IDs.
+> **Tip:** Use "Merge" when adding data from another source. Use "Replace" when restoring a full backup to a fresh device.
 
 ### Clearing data
 

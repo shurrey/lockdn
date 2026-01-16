@@ -12,10 +12,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { Download, Upload, Trash2, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Download, Upload, Trash2, Loader2, CheckCircle, AlertCircle, ReplaceAll, Merge } from 'lucide-react'
 import { db } from '@/db'
 import { format } from 'date-fns'
-import { importFromFile, type ExportData } from '@/lib/dataImport'
+import { importFromFile, type ExportData, type ImportMode } from '@/lib/dataImport'
 
 type OperationStatus = 'idle' | 'loading' | 'success' | 'error'
 
@@ -24,6 +32,8 @@ export function DataManagement() {
   const [importStatus, setImportStatus] = useState<OperationStatus>('idle')
   const [clearStatus, setClearStatus] = useState<OperationStatus>('idle')
   const [statusMessage, setStatusMessage] = useState('')
+  const [showImportDialog, setShowImportDialog] = useState(false)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleExport = async () => {
@@ -74,18 +84,33 @@ export function DataManagement() {
     fileInputRef.current?.click()
   }
 
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Store the file and show the import mode dialog
+    setPendingFile(file)
+    setShowImportDialog(true)
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handleImportWithMode = async (mode: ImportMode) => {
+    if (!pendingFile) return
+
+    setShowImportDialog(false)
     setImportStatus('loading')
     setStatusMessage('')
 
     try {
-      await importFromFile(file)
+      const result = await importFromFile(pendingFile, mode)
 
       setImportStatus('success')
-      setStatusMessage('Data imported successfully! Refreshing page...')
+      const modeText = mode === 'replace' ? 'replaced' : 'merged'
+      setStatusMessage(`Data ${modeText} successfully! (${result.coursesCount} courses, ${result.assignmentsCount} assignments) Refreshing page...`)
 
       // Refresh page to show imported data
       setTimeout(() => {
@@ -96,10 +121,12 @@ export function DataManagement() {
       setStatusMessage(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
 
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
+    setPendingFile(null)
+  }
+
+  const handleCancelImport = () => {
+    setShowImportDialog(false)
+    setPendingFile(null)
   }
 
   const handleClearData = async () => {
@@ -202,7 +229,7 @@ export function DataManagement() {
         <CardHeader>
           <CardTitle className="text-lg">Import Data</CardTitle>
           <CardDescription>
-            Restore data from a backup file. This will replace all existing data with the imported data.
+            Restore data from a backup file. You can choose to merge with or replace your existing data.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -211,7 +238,7 @@ export function DataManagement() {
             type="file"
             accept=".json"
             className="hidden"
-            onChange={handleImport}
+            onChange={handleFileSelect}
           />
           <div className="flex items-center gap-4">
             <Button onClick={handleImportClick} disabled={importStatus === 'loading'} variant="outline">
@@ -288,6 +315,55 @@ export function DataManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Import Mode Dialog */}
+      <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>How would you like to import?</DialogTitle>
+            <DialogDescription>
+              Choose how to handle the imported data relative to your existing data.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Button
+              variant="outline"
+              className="h-auto p-4 justify-start"
+              onClick={() => handleImportWithMode('merge')}
+            >
+              <div className="flex gap-4 items-start">
+                <Merge className="h-5 w-5 mt-0.5 text-blue-500" />
+                <div className="text-left">
+                  <div className="font-medium">Merge with existing data</div>
+                  <div className="text-sm text-muted-foreground">
+                    Add new items and update existing ones. Your current data stays intact.
+                  </div>
+                </div>
+              </div>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-auto p-4 justify-start"
+              onClick={() => handleImportWithMode('replace')}
+            >
+              <div className="flex gap-4 items-start">
+                <ReplaceAll className="h-5 w-5 mt-0.5 text-orange-500" />
+                <div className="text-left">
+                  <div className="font-medium">Replace all data</div>
+                  <div className="text-sm text-muted-foreground">
+                    Delete all existing data and replace it with the imported file.
+                  </div>
+                </div>
+              </div>
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={handleCancelImport}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
