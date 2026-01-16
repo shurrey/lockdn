@@ -60,6 +60,26 @@ npm run dev
 
 The app will be available at `http://localhost:5173`
 
+### 5. Load Sample Data (Optional)
+
+To test with realistic data, import the sample data file:
+
+1. Start the app and complete the onboarding
+2. Go to **Settings** → **Data** → **Import**
+3. Select `dev/sample-data.json` from the repository
+4. Click **Import**
+
+The sample data includes:
+- 4 courses (PSY 101, MATH 152, CS 201, ENG 102)
+- 15 assignments with various due dates and weights
+- 4 notes linked to courses
+- 2 study materials
+- 5 study sessions
+- Analytics data with streaks
+- User preferences
+
+This gives you a populated app to test against without manually creating data.
+
 ---
 
 ## Project Structure
@@ -105,6 +125,8 @@ lockdn/
 ├── public/                # Static assets
 ├── e2e/                   # End-to-end tests (Playwright)
 ├── docs/                  # Documentation
+├── dev/                   # Developer resources
+│   └── sample-data.json   # Test data for development
 ├── signaling/             # Signaling server (PartyKit)
 └── scripts/               # Build scripts
 ```

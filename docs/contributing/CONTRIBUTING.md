@@ -6,9 +6,15 @@ Thank you for your interest in contributing to Lockdn! This document explains th
 
 ## Before You Start
 
-### Read the Contributor Agreement
+### Sign the Contributor Agreement
 
-All contributions require agreement to our [Contributor Agreement](./CONTRIBUTOR_AGREEMENT.md). By submitting a pull request, you agree to its terms.
+All contributions require agreement to our [Contributor Agreement](./CONTRIBUTOR_AGREEMENT.md). When you open your first pull request:
+
+1. The CLA Assistant bot will comment on your PR
+2. Reply with: `I have read the Contributor Agreement and I hereby sign this Agreement.`
+3. The bot will record your signature and mark the check as passed
+
+You only need to sign once — future PRs will pass automatically.
 
 ### Check Existing Issues
 
@@ -139,6 +145,40 @@ Description of testing performed
 - [ ] I have updated documentation
 - [ ] I have read the contributor agreement
 ```
+
+---
+
+## Automated PR Checks
+
+When you open a pull request, several automated checks run:
+
+### CLA Check
+
+Verifies you've signed the Contributor Agreement. See [Sign the Contributor Agreement](#sign-the-contributor-agreement) above.
+
+### Rule-Based Checks
+
+Automated checks enforce project guidelines from [AGENTS.md](./AGENTS.md):
+
+| Check | What it catches |
+|-------|-----------------|
+| No `any` type | TypeScript `any` usage in src/ |
+| No backend dependencies | Express, Fastify, NestJS, etc. in package.json |
+| No auth libraries | Passport, NextAuth, Auth0, etc. in package.json |
+| No telemetry | Sentry, Datadog, Mixpanel, etc. in package.json |
+| No hardcoded API keys | API key patterns in source code |
+
+If a rule-based check fails, you must fix the issue before merging.
+
+### AI Code Review
+
+An AI reviewer analyzes your changes against project guidelines and posts suggestions as PR comments. This review is:
+
+- **Advisory only** — It won't block your PR
+- **Based on AGENTS.md** — Checks for guideline compliance
+- **Constructive** — Provides specific, actionable feedback
+
+Review the AI's suggestions, but use your judgment. Not all suggestions need to be implemented.
 
 ---
 
@@ -346,7 +386,8 @@ export function calculateWeightedGrade(
 ## Getting Merged
 
 PRs are merged when:
-- All checks pass (tests, lint, build)
+- CLA is signed
+- All automated checks pass (tests, lint, build, rule-based checks)
 - At least one maintainer approves
 - All review comments are addressed
 - CI is green
