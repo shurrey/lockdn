@@ -41,7 +41,9 @@ import {
   ArrowRight,
   Check,
   GraduationCap,
+  HelpCircle,
 } from 'lucide-react'
+import { HelpPanel } from '@/components/HelpPanel'
 import { FileUpload, type UploadedFile } from '@/components/syllabus/FileUpload'
 import {
   useCourses,
@@ -119,6 +121,7 @@ export function CoursesPage() {
   const [showScheduleUploadDialog, setShowScheduleUploadDialog] = useState(false)
   const [showCompleteDialog, setShowCompleteDialog] = useState(false)
   const [showGradesDialog, setShowGradesDialog] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null)
 
@@ -374,7 +377,10 @@ export function CoursesPage() {
             Manage your courses, schedules, and assignments.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+            <HelpCircle className="h-5 w-5" />
+          </Button>
           <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => setShowScheduleUploadDialog(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Import Schedule
@@ -748,6 +754,14 @@ export function CoursesPage() {
           relatedItems={archiveRelatedItems}
         />
       )}
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/features/courses"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="Courses Help"
+      />
     </div>
   )
 }

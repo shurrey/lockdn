@@ -15,7 +15,9 @@ import {
   CheckCircle2,
   ArrowRight,
   Check,
+  HelpCircle,
 } from 'lucide-react'
+import { HelpPanel } from '@/components/HelpPanel'
 import { MarkCompleteDialog } from '@/components/assignments'
 import type { Assignment } from '@/types'
 import {
@@ -50,6 +52,7 @@ export function DashboardPage() {
   const [showScheduleUpload, setShowScheduleUpload] = useState(false)
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null)
   const [showCompleteDialog, setShowCompleteDialog] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
 
   const hasApiKey = apiKeys && apiKeys.length > 0
   const hasCourses = courses && courses.length > 0
@@ -85,13 +88,18 @@ export function DashboardPage() {
 
   return (
     <div className="p-4 md:p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          {isFirstTimeUser
-            ? "Let's get you set up for success!"
-            : "Welcome back! Here's what needs your attention."}
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            {isFirstTimeUser
+              ? "Let's get you set up for success!"
+              : "Welcome back! Here's what needs your attention."}
+          </p>
+        </div>
+        <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+          <HelpCircle className="h-5 w-5" />
+        </Button>
       </div>
 
       {/* First Time User Experience */}
@@ -462,6 +470,14 @@ export function DashboardPage() {
         assignment={selectedAssignment}
         open={showCompleteDialog}
         onOpenChange={setShowCompleteDialog}
+      />
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/getting-started"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="Getting Started"
       />
     </div>
   )

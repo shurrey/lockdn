@@ -1,0 +1,45 @@
+name: CLA Assistant
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  cla:
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'pull_request_target') ||
+      (github.event_name == 'issue_comment' && github.event.comment.body == 'recheck')
+    steps:
+      - name: CLA Assistant
+        uses: contributor-assistant/github-action@v2.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path-to-signatures: '.github/contributors/signatures.json'
+          path-to-document: 'docs/contributing/CONTRIBUTOR_AGREEMENT.md'
+          branch: 'main'
+          allowlist: 'bot*,dependabot*,github-actions*'
+          remote-organization-name: false
+          remote-repository-name: false
+          create-file-commit-message: 'chore: create CLA signature file'
+          signed-commit-message: '$contributorName has signed the CLA'
+          custom-notsigned-prcomment: |
+            Thanks for your contribution! Before we can merge this PR, you need to sign the [Contributor Agreement](https://github.com/${{ github.repository }}/blob/main/docs/contributing/CONTRIBUTOR_AGREEMENT.md).
+
+            **To sign, please reply with the following comment:**
+            ```
+            I have read the Contributor Agreement and I hereby sign this Agreement.
+            ```
+
+            Once signed, your signature will be recorded and you won't need to sign again for future contributions.
+          custom-pr-sign-comment: 'I have read the Contributor Agreement and I hereby sign this Agreement.'
+          lock-pullrequest-aftermerge: false

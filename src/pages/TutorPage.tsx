@@ -8,7 +8,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { Settings, Plus, MessageSquare, Trash2, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react'
+import { Settings, Plus, MessageSquare, Trash2, ChevronLeft, ChevronRight, Menu, X, HelpCircle } from 'lucide-react'
+import { HelpPanel } from '@/components/HelpPanel'
 import { Link } from 'react-router-dom'
 import { Mascot } from '@/components/Mascot'
 import { ChatInterface } from '@/components/tutor/ChatInterface'
@@ -50,6 +51,7 @@ export function TutorPage() {
   const [selectedResource, setSelectedResource] = useState<ResourceLink | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
 
   // Track if we've analyzed recently to avoid excessive analysis
   const lastAnalysisRef = useRef<number>(0)
@@ -243,6 +245,11 @@ export function TutorPage() {
         </div>
 
         {/* Mobile conversation menu */}
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)} className="hidden md:flex">
+            <HelpCircle className="h-5 w-5" />
+          </Button>
+        </div>
         <div className="flex items-center gap-2 md:hidden">
           <Button variant="outline" size="icon" onClick={handleNewConversation}>
             <Plus className="h-4 w-4" />
@@ -387,6 +394,14 @@ export function TutorPage() {
           </>
         )}
       </div>
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/features/tutor"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="AI Tutor Help"
+      />
     </div>
   )
 }

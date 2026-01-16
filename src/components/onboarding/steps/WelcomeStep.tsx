@@ -15,6 +15,8 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
+  BookOpen,
+  ExternalLink,
 } from 'lucide-react'
 import { importFromFile } from '@/lib/dataImport'
 import { Logo } from '@/components/Logo'
@@ -219,6 +221,25 @@ export function WelcomeStep({ onNext, onImportComplete }: WelcomeStepProps) {
             Connected! Your data will sync automatically.
           </p>
         )}
+      </div>
+
+      {/* Documentation link */}
+      <div className="border-t pt-6">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <BookOpen className="h-5 w-5 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            Want to learn more about Lockdn features?
+          </p>
+          <a
+            href="https://github.com/anthropics/student-course-tools/blob/main/docs/user/getting-started.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-primary hover:underline flex items-center gap-1"
+          >
+            Read the documentation
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
       </div>
 
       {/* Device Pairing Dialog */}

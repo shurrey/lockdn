@@ -37,7 +37,9 @@ import {
   Trash2,
   FileText,
   BookOpen,
+  HelpCircle,
 } from 'lucide-react'
+import { HelpPanel } from '@/components/HelpPanel'
 import {
   useCourses,
   useAssignments,
@@ -109,6 +111,7 @@ export function StudyPage() {
   const [generating, setGenerating] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [selectedSession, setSelectedSession] = useState<PlannedSession | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   // Generate plan dialog state
   const [showGenerateDialog, setShowGenerateDialog] = useState(false)
@@ -417,6 +420,9 @@ export function StudyPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+            <HelpCircle className="h-5 w-5" />
+          </Button>
           {plannedSessions.length > 0 && (
             <Button variant="outline" onClick={handleClearPlan}>
               <Trash2 className="h-4 w-4 mr-2" />
@@ -1156,6 +1162,14 @@ export function StudyPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/features/study-planning"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="Study Planning Help"
+      />
     </div>
   )
 }

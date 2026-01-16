@@ -24,7 +24,8 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Loader2, Sparkles, Play, Square, Brain, Flame, CheckCircle2 } from 'lucide-react'
+import { Loader2, Sparkles, Play, Square, Brain, Flame, CheckCircle2, HelpCircle } from 'lucide-react'
+import { HelpPanel } from '@/components/HelpPanel'
 import { MarkCompleteDialog } from '@/components/assignments'
 import { useCourses, useAssignments, useStudySessions, useStudyPlan, usePreferences, useAnalytics, updateAssignment, saveStudyPlan, createStudySession, updateStudySession } from '@/db/hooks'
 import { generateStudyPlan } from '@/lib/studyPlanner'
@@ -68,6 +69,7 @@ export function CalendarPage() {
   const [showPlannedSessions, setShowPlannedSessions] = useState<boolean>(true)
   const [showClassMeetings, setShowClassMeetings] = useState<boolean>(true)
   const [generatingPlan, setGeneratingPlan] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
   const [selectedClassMeeting, setSelectedClassMeeting] = useState<{
     course: Course
     meeting: ClassMeeting
@@ -399,7 +401,10 @@ export function CalendarPage() {
             </p>
           </div>
           {/* Type filter - visible on desktop */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+              <HelpCircle className="h-5 w-5" />
+            </Button>
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="All Types" />
@@ -937,6 +942,14 @@ export function CalendarPage() {
         open={showCompleteDialog}
         onOpenChange={setShowCompleteDialog}
         onComplete={() => setSelectedAssignment(null)}
+      />
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/features/calendar"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="Calendar Help"
       />
     </div>
   )

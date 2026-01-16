@@ -1,0 +1,151 @@
+name: PR Review
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # Job 1: Rule-based checks (fast, blocking)
+  lint-rules:
+    name: AGENTS.md Rule Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for 'any' type usage
+        run: |
+          # Search for explicit 'any' type annotations
+          if grep -rn ":\s*any\b" --include="*.ts" --include="*.tsx" src/; then
+            echo "::warning::Found 'any' type usage. Per AGENTS.md, avoid using 'any' type."
+          fi
+
+      - name: Check for backend dependencies
+        run: |
+          BLOCKED="\"express\"|\"fastify\"|\"koa\"|\"hapi\"|\"@nestjs|\"mongoose\"|\"prisma\"|\"sequelize\""
+          if grep -E "$BLOCKED" package.json; then
+            echo "::error::Found backend dependency. Per AGENTS.md, never add backend dependencies."
+            exit 1
+          fi
+
+      - name: Check for auth libraries
+        run: |
+          BLOCKED="\"passport\"|\"next-auth\"|\"@auth0|\"firebase-auth\"|\"@clerk"
+          if grep -E "$BLOCKED" package.json; then
+            echo "::error::Found auth library. Per AGENTS.md, never add authentication libraries."
+            exit 1
+          fi
+
+      - name: Check for telemetry
+        run: |
+          BLOCKED="\"@sentry|\"@datadog|\"mixpanel\"|\"amplitude\"|\"segment\"|\"posthog\""
+          if grep -E "$BLOCKED" package.json; then
+            echo "::error::Found telemetry library. Per AGENTS.md, never add analytics/telemetry."
+            exit 1
+          fi
+
+      - name: Check for hardcoded API keys
+        run: |
+          # Look for common API key patterns
+          if grep -rn "sk-[a-zA-Z0-9]\{20,\}" --include="*.ts" --include="*.tsx" --include="*.js" src/; then
+            echo "::error::Found potential hardcoded API key. Never commit API keys."
+            exit 1
+          fi
+          if grep -rn "api[_-]?key\s*[:=]\s*['\"][^'\"]*['\"]" --include="*.ts" --include="*.tsx" src/ | grep -v "process.env\|import\|type\|interface"; then
+            echo "::warning::Found potential hardcoded API key pattern. Please review."
+          fi
+
+  # Job 2: AI-powered review (non-blocking, advisory)
+  ai-review:
+    name: AI Guidelines Review
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          # Get list of changed files
+          git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
+          echo "Changed files:"
+          cat changed_files.txt
+
+      - name: Check if AI review should run
+        id: should-review
+        run: |
+          # Only run AI review if there are TypeScript/TSX changes in src/
+          if grep -E "^src/.*\.(ts|tsx)$" changed_files.txt > /dev/null; then
+            echo "has_code_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_code_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get PR diff for review
+        if: steps.should-review.outputs.has_code_changes == 'true'
+        run: |
+          # Get focused diff (only src/ TypeScript files)
+          git diff origin/${{ github.base_ref }}...HEAD -- 'src/**/*.ts' 'src/**/*.tsx' > pr_diff.txt
+          # Truncate if too large (keep under 50KB for API limits)
+          head -c 50000 pr_diff.txt > pr_diff_truncated.txt
+          mv pr_diff_truncated.txt pr_diff.txt
+
+      - name: AI Review with Claude
+        if: steps.should-review.outputs.has_code_changes == 'true' && env.ANTHROPIC_API_KEY != ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Read AGENTS.md guidelines
+          GUIDELINES=$(cat docs/contributing/AGENTS.md)
+
+          # Read PR diff
+          DIFF=$(cat pr_diff.txt)
+
+          # Create review prompt
+          PROMPT="You are a code reviewer for a React/TypeScript project. Review the following PR diff against the project guidelines.
+
+          ## Project Guidelines (from AGENTS.md):
+          ${GUIDELINES}
+
+          ## PR Diff:
+          \`\`\`diff
+          ${DIFF}
+          \`\`\`
+
+          Provide a brief, constructive review focusing on:
+          1. Any violations of the guidelines
+          2. Potential improvements for code quality
+          3. Security considerations
+
+          Be encouraging but thorough. Format your response as a GitHub PR comment (markdown).
+          Keep the review concise (under 500 words)."
+
+          # Call Claude API
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: ${ANTHROPIC_API_KEY}" \
+            -H "anthropic-version: 2023-06-01" \
+            -d "$(jq -n --arg prompt "$PROMPT" '{
+              "model": "claude-sonnet-4-20250514",
+              "max_tokens": 1024,
+              "messages": [{"role": "user", "content": $prompt}]
+            }')" | jq -r '.content[0].text // "Unable to generate review"')
+
+          # Post comment to PR
+          gh pr comment ${{ github.event.pull_request.number }} --body "## AI Code Review
+
+          $RESPONSE
+
+          ---
+          *This review was generated by Claude based on the project's AGENTS.md guidelines.*"
+
+      - name: Skip AI review notice
+        if: steps.should-review.outputs.has_code_changes == 'false'
+        run: echo "No TypeScript/TSX changes in src/ - skipping AI review"

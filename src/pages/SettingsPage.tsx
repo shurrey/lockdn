@@ -6,23 +6,31 @@ import { StudyPreferencesForm } from '@/components/settings/StudyPreferencesForm
 import { DataManagement } from '@/components/settings/DataManagement'
 import { DeviceSyncSettings } from '@/components/settings/DeviceSyncSettings'
 import { usePreferences, updatePreferences } from '@/db/hooks'
-import { Sun, Moon, Monitor } from 'lucide-react'
+import { Sun, Moon, Monitor, HelpCircle } from 'lucide-react'
+import { HelpPanel } from '@/components/HelpPanel'
 import { cn } from '@/lib/utils'
+import { useState } from 'react'
 
 export function SettingsPage() {
   const preferences = usePreferences()
   const currentTheme = preferences?.theme || 'system'
+  const [showHelp, setShowHelp] = useState(false)
 
   const handleThemeChange = async (theme: 'light' | 'dark' | 'system') => {
     await updatePreferences({ theme })
   }
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground">
-          Configure your preferences and API keys.
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <p className="text-muted-foreground">
+            Configure your preferences and API keys.
+          </p>
+        </div>
+        <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+          <HelpCircle className="h-5 w-5" />
+        </Button>
       </div>
 
       <Tabs defaultValue="api-keys" className="space-y-6">
@@ -122,6 +130,14 @@ export function SettingsPage() {
           <DataManagement />
         </TabsContent>
       </Tabs>
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/troubleshooting"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="Settings Help"
+      />
     </div>
   )
 }

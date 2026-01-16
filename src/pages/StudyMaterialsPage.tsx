@@ -41,7 +41,9 @@ import {
   X,
   Loader2,
   AlertCircle,
+  HelpCircle,
 } from 'lucide-react'
+import { HelpPanel } from '@/components/HelpPanel'
 import { Mascot } from '@/components/Mascot'
 import { useCourses, archiveStudyMaterial } from '@/db/hooks'
 import { db, generateId } from '@/db'
@@ -79,6 +81,7 @@ export function StudyMaterialsPage() {
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set())
   const [gradeResults, setGradeResults] = useState<Record<string, QuestionGradeResult>>({})
   const [isGrading, setIsGrading] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
 
   // Filter materials
   const filteredMaterials = useMemo(() => {
@@ -346,19 +349,24 @@ export function StudyMaterialsPage() {
             View your generated study guides and practice exams.
           </p>
         </div>
-        <Select value={filterCourse} onValueChange={setFilterCourse}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="All Courses" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Courses</SelectItem>
-            {courses?.map((course) => (
-              <SelectItem key={course.id} value={course.id}>
-                {course.code}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+            <HelpCircle className="h-5 w-5" />
+          </Button>
+          <Select value={filterCourse} onValueChange={setFilterCourse}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="All Courses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Courses</SelectItem>
+              {courses?.map((course) => (
+                <SelectItem key={course.id} value={course.id}>
+                  {course.code}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <Tabs defaultValue="guides" className="space-y-4">
@@ -886,6 +894,14 @@ export function StudyMaterialsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/features/study-materials"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="Study Materials Help"
+      />
     </div>
   )
 }

@@ -30,7 +30,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Archive,
+  HelpCircle,
 } from 'lucide-react'
+import { HelpPanel } from '@/components/HelpPanel'
 import {
   useCourses,
   useNotes,
@@ -77,6 +79,7 @@ export function NotesPage() {
   // Processing state
   const [processing, setProcessing] = useState<string | null>(null)
   const [generating, setGenerating] = useState<'guide' | 'exam' | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   // Filter notes by course
   const filteredNotes = useMemo(() => {
@@ -509,6 +512,9 @@ export function NotesPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+            <HelpCircle className="h-5 w-5" />
+          </Button>
           <Select value={filterCourse} onValueChange={setFilterCourse}>
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Courses" />
@@ -1124,6 +1130,14 @@ export function NotesPage() {
           </Card>
         </div>
       )}
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/features/notes"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="Notes Help"
+      />
     </div>
   )
 }

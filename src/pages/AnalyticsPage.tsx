@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { BarChart3 } from 'lucide-react'
+import { BarChart3, HelpCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { HelpPanel } from '@/components/HelpPanel'
 import {
   StudyTimeChart,
   StreaksCard,
@@ -27,6 +28,7 @@ type DateRange = 7 | 14 | 30
 
 export function AnalyticsPage() {
   const [dateRange, setDateRange] = useState<DateRange>(30)
+  const [showHelp, setShowHelp] = useState(false)
   const backfillRan = useRef(false)
 
   // Backfill daily summaries and streaks from existing sessions on first load
@@ -60,7 +62,11 @@ export function AnalyticsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-1 bg-muted rounded-lg p-1 self-start sm:self-auto">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)}>
+            <HelpCircle className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1 self-start sm:self-auto">
           {([7, 14, 30] as DateRange[]).map((days) => (
             <Button
               key={days}
@@ -72,6 +78,7 @@ export function AnalyticsPage() {
               {days}d
             </Button>
           ))}
+          </div>
         </div>
       </div>
 
@@ -95,6 +102,14 @@ export function AnalyticsPage() {
           <CoursePerformanceCard analytics={analytics} courses={courses} />
         </div>
       </div>
+
+      {/* Help Panel */}
+      <HelpPanel
+        docPath="user/features/analytics"
+        open={showHelp}
+        onOpenChange={setShowHelp}
+        title="Analytics Help"
+      />
     </div>
   )
 }
