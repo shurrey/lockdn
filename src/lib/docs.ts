@@ -58,7 +58,7 @@ export async function getDocContent(docPath: string): Promise<string> {
 
 The documentation for this page could not be loaded.
 
-Please check the [full documentation on GitHub](https://github.com/anthropics/student-course-tools/tree/main/docs).`
+Please check the [full documentation on GitHub](https://github.com/shurrey/lockdn/tree/main/docs).`
   }
 }
 
